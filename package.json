@@ -1,7 +1,7 @@
 {
   "name": "data-mocks",
   "version": "1.0.2",
-  "main": "index.js",
+  "main": "dist/mocks.js",
   "types": "dist/mocks.d.ts",
   "repository": "git@github.com:ovotech/data-mocks.git",
   "author": "Dave Cooper <dave.cooper@ovoenergy.com>",
