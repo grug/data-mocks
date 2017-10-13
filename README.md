@@ -13,7 +13,7 @@ This library aims to allow rapid local development without the dependency of a d
 Assuming your project is using `fetch` for HTTP operations:
 
 - Either `npm install data-mocks` or `yarn add data-mocks`
-- Import into your project with `import { injectMocks } from 'data-mocks'
+- Import into your project with `import { injectMocks } from 'data-mocks'`
 - Create an array of mocks you would like to use (see examples)
 - Pass array of mocks to `injectMocks()`
 - Hooray, all HTTP requests to mocked endpoints will now respond with the mocked data you have specified
