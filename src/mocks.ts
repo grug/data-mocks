@@ -20,7 +20,7 @@ export const injectMocks = (mocks: Mock[]): void => {
 
   mocks.forEach(({ method, url, response, responseCode = 200 /* maybe we dont need this default */, delay = 0 }) => {
     const finalResponse = {
-      body: response,
+      body: JSON.stringify(response),
       status: responseCode
     };
 
