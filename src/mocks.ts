@@ -3,9 +3,9 @@ import * as FetchMock from 'fetch-mock';
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 export interface Mock {
-  url: RegExp | string,
+  url: RegExp,
   method: HttpMethod,
-  response: object, // TODO - better type this?
+  response: object,
   responseCode?: number,
   delay?: number
 }
@@ -18,7 +18,7 @@ export const injectMocks = (mocks: Mock[]): void => {
     return;
   }
 
-  mocks.forEach(({ method, url, response, responseCode = 200 /* maybe we dont need this default */, delay = 0 }) => {
+  mocks.forEach(({ method, url, response, responseCode = 200, delay = 0 }) => {
     const finalResponse = {
       body: response,
       status: responseCode
