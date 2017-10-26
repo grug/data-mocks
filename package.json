@@ -23,13 +23,15 @@
     }
   },
   "dependencies": {
+    "fetch-mock": "^5.13.1"
+  },
+  "devDependencies": {
     "@types/fetch-mock": "^5.12.0",
     "@types/jest": "^21.1.2",
+    "ts-jest": "^21.1.2",
+    "jest": "^21.2.1",
     "babel-cli": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
-    "fetch-mock": "^5.13.1",
-    "jest": "^21.2.1",
-    "ts-jest": "^21.1.2",
     "typescript": "^2.5.3"
   }
 }
