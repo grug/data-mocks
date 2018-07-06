@@ -1,3 +1,5 @@
+[![npm version](https://badge.fury.io/js/data-mocks.svg)](https://badge.fury.io/js/data-mocks)
+
 # data-mocks
 Library to mock local data requests using Fetch
 
