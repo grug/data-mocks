@@ -59,9 +59,12 @@ export const injectMocks = (scenarios: Scenarios, scenario: keyof Scenarios = 'd
   });
 };
 
-const addDelay = (delay: number) => new Promise((res) => setTimeout(res, delay));
 
-const reduceAllMockForScenario = (scenarios: Scenarios, scenario: keyof Scenarios): Mock[] => {
+export const reduceAllMockForScenario = (scenarios: Scenarios, scenario: keyof Scenarios): Mock[] => {
+  if (scenario === 'default') {
+    return scenarios.default;
+  }
+
   const defaultMocks = scenarios.default;
   const scenarioMocks = scenarios[scenario];
 
@@ -83,5 +86,7 @@ const reduceAllMockForScenario = (scenarios: Scenarios, scenario: keyof Scenario
     [] as Mock[]
   );
 };
+
+const addDelay = (delay: number) => new Promise((res) => setTimeout(res, delay));
 
 const findMockIndexInScenarioByMatcher = (scenario: Mock[], matcher: RegExp): number => scenario.findIndex(mock => mock.url === matcher);
