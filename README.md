@@ -15,40 +15,90 @@ This library aims to allow rapid local development without the dependency of a d
 Assuming your project is using `fetch` for HTTP operations:
 
 - Either `npm install data-mocks` or `yarn add data-mocks`
-- Import into your project with `import { injectMocks } from 'data-mocks'`
-- Create an array of mocks you would like to use (see examples)
-- Pass array of mocks to `injectMocks()`
+- Optional: extract the scenario from URL using the imported `extractScenarioFromLocation()` function
+  - Or you can just hardcode a string to pass through instead
+- Import `injectMocks()` function into your project with `import { injectMocks } from 'data-mocks'`
+- Create an array of `Scenario`'s you would like to use (see examples)
+- Pass array of `Scenario`'s to `injectMocks()`
 - Hooray, all HTTP requests to mocked endpoints will now respond with the mocked data you have specified
 
 # Examples
 ```javascript
 import { injectMocks } from 'data-mocks';
 
-const mocks = [{
-  url: /some-endpoint/,
-  method: 'GET',
-  response: { some: 'response' },
-  responseCode: 200
-}, {
-  url: /some-other-endpoint/,
-  method: 'POST',
-  response: { another: 'response' },
-  responseCode: 200,
-  delay: 1000
-}];
+const scenarios = {
+  default: [{
+    url: /login/,
+    method: 'POST',
+    response: { some: 'good response' },
+    responseCode: 200
+  }, {
+    url: /some-other-endpoint/,
+    method: 'GET',
+    response: { another: 'response' },
+    responseCode: 200,
+    delay: 1000
+  }]
+};
 
-injectMocks(mocks);
+injectMocks(scenarios);
 
-fetch('http://foo.com/some-endpoint')
-  .then(response => console.log(response)); // resolves with { some: 'response' }
+fetch('http://foo.com/login', { method: 'POST', body: {} })
+  .then(response => console.log(response)); // resolves with { some: 'good response' } after a 200ms delay
 
-fetch('http://foo.com/some-other-endpoint', { method: 'POST', body: {} })
+fetch('http://foo.com/some-other-endpoint')
   .then(response => console.log(response)); // resolves with { another: 'response' } after a 1 second delay
 ```
 
-In this example, we define two mock responses in our `mocks` array. The Mock objects are described by the [Mock interface](#mock-interface). We then inject the mocks into our application via the [`injectMocks()` function](#injectMocks-interface). Finally, when we use fetch to make a request to endpoints that match our mock objects, the mocked responses are returned (note: the second fetch will respond after the conigured delay in milliseconds).
+In this example, we define a default scenario in our `scenarios` map. The Scenario objects are described by the [Scenario interface](#scenario-interface). We then inject the scenarios into our application via the [`injectMocks() function](#injectMocks-interface). Finally, when we use fetch to make a request to endpoints that match our scenario objects, the mocked responses are returned.
 
-## Mock interface
+------------------------
+
+```javascript
+import { injectMocks } from 'data-mocks';
+
+const scenarios = {
+  default: [{
+    url: /login/,
+    method: 'POST',
+    response: { some: 'good response' },
+    responseCode: 200
+  }, {
+    url: /some-other-endpoint/,
+    method: 'GET',
+    response: { another: 'response' },
+    responseCode: 200,
+    delay: 1000
+  }],
+  failedLogin: [{
+    url: /login/,
+    method: 'POST',
+    response: { some: 'bad things happened' },
+    responseCode: 401
+  }]
+};
+
+injectMocks(scenarios);
+
+fetch('http://foo.com/login', { method: 'POST', body: {} })
+  .then(response => console.log(response)); // resolves with a 401 after a 200ms delay
+
+fetch('http://foo.com/some-other-endpoint')
+  .then(response => console.log(response)); // resolves with { another: 'response' } after a 1 second delay
+```
+
+In this example, if we load our site up with `scenario=failedLogin` in the querystring and then attempt to hit the `login` endpoint, it will fail with a 401. However, the `some-other-endpoint` endpoint will still respond with the response in the `default` scenario as we have not provided one in the `failedLogin` scenario.
+
+## Exported interfaces
+
+### Scenarios
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| default | Mock[] | ✅ | The default scenario mapping. Provides a default set of mocked responses |
+| [scenario] | Mock[] | ❌ | Additional scenario mappings. The key is the name of the scenario and is what is used in the URL |
+
+### Mock
 
 | Property | Type | Required | Description |
 |----------|------|----------|-------------|
@@ -58,8 +108,17 @@ In this example, we define two mock responses in our `mocks` array. The Mock obj
 | responseCode | number | ❌ | Response code. Defaults to 200 |
 | delay | number | ❌ | Delay (in milliseconds) before response is returned. Defaults to 0 |
 
-## injectMocks interface
+## Exported functions
+
+### injectMocks
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
-| mocks | [Mock](#mock-interface)[] | ✅ | Injects list of mock responses into application. Any HTTP requests made to matching endpoints will trigger the mock response |
+| scenarios | [Scenarios](#Scenarios)[] | ✅ | A mapping of scenarios and their responses |
+| scenario | keyof [Scenarios](#Scenarios)[] | ❌ | The scenario to run. Defaults to `default` |
+
+### extractScenarioFromLocation
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| location | [Location](https://developer.mozilla.org/en-US/docs/Web/API/Location) | ✅ | The browser location object. The value for the `scenario` part of the querystring will be extracted and returned |
