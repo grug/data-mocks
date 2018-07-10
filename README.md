@@ -78,7 +78,7 @@ const scenarios = {
   }]
 };
 
-injectMocks(scenarios);
+injectMocks(scenarios, 'failedLogin');
 
 fetch('http://foo.com/login', { method: 'POST', body: {} })
   .then(response => console.log(response)); // resolves with a 401 after a 200ms delay
