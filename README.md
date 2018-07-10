@@ -23,6 +23,7 @@ Assuming your project is using `fetch` for HTTP operations:
 - Hooray, all HTTP requests to mocked endpoints will now respond with the mocked data you have specified
 
 # Examples
+
 ```javascript
 import { injectMocks } from 'data-mocks';
 
@@ -50,12 +51,12 @@ fetch('http://foo.com/some-other-endpoint')
   .then(response => console.log(response)); // resolves with { another: 'response' } after a 1 second delay
 ```
 
-In this example, we define a default scenario in our `scenarios` map. The Scenario objects are described by the [Scenario interface](#scenario-interface). We then inject the scenarios into our application via the [`injectMocks() function](#injectMocks-interface). Finally, when we use fetch to make a request to endpoints that match our scenario objects, the mocked responses are returned.
+In this example, we define a default scenario in our `scenarios` map. The Scenario objects are described by the [Scenario interface](#scenario). We then inject the scenarios into our application via the [injectMocks() function](#injectMocks). Finally, when we use fetch to make a request to endpoints that match our scenario objects, the mocked responses are returned.
 
 ------------------------
 
 ```javascript
-import { injectMocks } from 'data-mocks';
+import { injectMocks, extractScenarioFromLocation } from 'data-mocks';
 
 const scenarios = {
   default: [{
@@ -79,6 +80,9 @@ const scenarios = {
 };
 
 injectMocks(scenarios, 'failedLogin');
+// The above line could be rewritten as:
+// const scenario = extractScenarioFromLocation(window.location);
+// injectMocks(scenarios, scenario);
 
 fetch('http://foo.com/login', { method: 'POST', body: {} })
   .then(response => console.log(response)); // resolves with a 401 after a 200ms delay
