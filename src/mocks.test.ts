@@ -1,28 +1,74 @@
-import { injectMocks, Mock, HttpMethod } from './mocks';
+import { injectMocks, HttpMethod, Scenarios, extractScenarioFromLocation, reduceAllMocksForScenario, Mock } from './mocks';
 import * as FetchMock from 'fetch-mock';
 
-describe('data-mocks', () => {
-  const httpMethods: HttpMethod[] = [
-    'GET',
-    'POST',
-    'PUT',
-    'DELETE'
-  ];
+declare var jsdom: any;
 
-  httpMethods.forEach(httpMethod => {
-    const mocks: Mock[] = [
-      { url: /foo/, method: httpMethod, response: {}, responseCode: 200 },
-      { url: /bar/, method: httpMethod, response: {}, responseCode: 200 }
+describe('data-mocks', () => {
+  describe('HTTP methods', () => {
+    const httpMethods: HttpMethod[] = [
+      'GET',
+      'POST',
+      'PUT',
+      'DELETE'
     ];
 
-    test(`Mocks calls for ${httpMethod}`, () => {
-      const spy = jest.spyOn(FetchMock, httpMethod.toLowerCase() as any);
+    httpMethods.forEach(httpMethod => {
+      const scenarios: Scenarios = {
+        default: [
+          { url: /foo/, method: httpMethod, response: {}, responseCode: 200 },
+          { url: /bar/, method: httpMethod, response: {}, responseCode: 200 }
+        ]
+      };
+      test(`Mocks calls for ${httpMethod}`, () => {
+        const spy = jest.spyOn(FetchMock, httpMethod.toLowerCase() as any);
 
-      injectMocks(mocks);
+        injectMocks(scenarios, 'default');
 
-      expect(spy).toHaveBeenCalledTimes(2);
-      expect(spy.mock.calls[0][0]).toEqual(/foo/);
-      expect(spy.mock.calls[1][0]).toEqual(/bar/);
+        expect(spy).toHaveBeenCalledTimes(2);
+        expect(spy.mock.calls[0][0]).toEqual(/foo/);
+        expect(spy.mock.calls[1][0]).toEqual(/bar/);
+      });
     });
+  });
+
+  describe('Scenarios', () => {
+    const scenarios: Scenarios = {
+      default: [
+        { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
+        { url: /bar/, method: 'GET', response: {}, responseCode: 200 }
+      ],
+      someScenario: [
+        { url: /bar/, method: 'GET', response: { some: 'otherResponse' }, responseCode: 401 },
+        { url: /baz/, method: 'POST', response: {}, responseCode: 200 }
+      ]
+    };
+    test(`Can extract the scenario from anywhere in the URL`, () => {
+      jsdom.reconfigure({
+        url: 'https://www.foo.com?foo=bar&scenario=someScenario'
+      });
+      const scenario = extractScenarioFromLocation(location);
+      expect(scenario).toEqual('someScenario');
+    });
+
+    test(`Can create a list for the default scenario`, () => {
+      const result = reduceAllMocksForScenario(scenarios, 'default');
+
+      expect(result).toEqual([
+        { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
+        { url: /bar/, method: 'GET', response: {}, responseCode: 200 }
+      ]);
+    });
+
+    test(`Can create a list of mocks for a specific scenario`, () => {
+      const result = reduceAllMocksForScenario(scenarios, 'someScenario');
+
+      expect(result).toEqual([
+        { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
+        { url: /bar/, method: 'GET', response: {}, responseCode: 200 },
+        { url: /bar/, method: 'GET', response: { some: 'otherResponse' }, responseCode: 401 },
+        { url: /baz/, method: 'POST', response: {}, responseCode: 200 }
+      ]);
+    });
+
   });
 })
