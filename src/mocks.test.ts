@@ -1,4 +1,4 @@
-import { injectMocks, HttpMethod, Scenarios, extractScenarioFromLocation, reduceAllMockForScenario, Mock } from './mocks';
+import { injectMocks, HttpMethod, Scenarios, extractScenarioFromLocation, reduceAllMocksForScenario, Mock } from './mocks';
 import * as FetchMock from 'fetch-mock';
 
 declare var jsdom: any;
@@ -42,16 +42,16 @@ describe('data-mocks', () => {
         { url: /baz/, method: 'POST', response: {}, responseCode: 200 }
       ]
     };
-    test(`Can extract the scenario from a URL`, () => {
+    test(`Can extract the scenario from anywhere in the URL`, () => {
       jsdom.reconfigure({
-        url: 'https://www.foo.com?scenario=someScenario'
+        url: 'https://www.foo.com?foo=bar&scenario=someScenario'
       });
       const scenario = extractScenarioFromLocation(location);
       expect(scenario).toEqual('someScenario');
     });
 
     test(`Can create a list for the default scenario`, () => {
-      const result = reduceAllMockForScenario(scenarios, 'default');
+      const result = reduceAllMocksForScenario(scenarios, 'default');
 
       expect(result).toEqual([
         { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
@@ -60,7 +60,7 @@ describe('data-mocks', () => {
     });
 
     test(`Can create a list of mocks for a specific scenario`, () => {
-      const result = reduceAllMockForScenario(scenarios, 'someScenario');
+      const result = reduceAllMocksForScenario(scenarios, 'someScenario');
 
       expect(result).toEqual([
         { url: /foo/, method: 'GET', response: {}, responseCode: 200 },

@@ -24,7 +24,9 @@
     "testEnvironment": "jest-environment-jsdom-global"
   },
   "dependencies": {
-    "fetch-mock": "^5.13.1"
+    "@types/query-string": "^6.1.0",
+    "fetch-mock": "^5.13.1",
+    "query-string": "^6.1.0"
   },
   "devDependencies": {
     "@types/fetch-mock": "^5.12.2",

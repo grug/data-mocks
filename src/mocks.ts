@@ -1,4 +1,5 @@
 import * as FetchMock from 'fetch-mock';
+import { parse } from 'query-string';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -16,19 +17,11 @@ export interface Scenarios {
 }
 
 export const extractScenarioFromLocation = (location: Location): string => {
-  const queryString = location.search;
-  let scenario = queryString.split('?scenario=')[1];
-
-  if (!!scenario) {
-    // Cleanup if there are additional query parameters.
-    scenario = scenario.split('&')[0];
-  }
-
-  return scenario ? scenario : 'default';
+  return parse(location.search).scenario ? parse(location.search).scenario : 'default';
 };
 
 export const injectMocks = (scenarios: Scenarios, scenario: keyof Scenarios = 'default'): void => {
-  const mocks: Mock[] = scenario !== 'default' ? reduceAllMockForScenario(scenarios, scenario) : scenarios.default;
+  const mocks: Mock[] = scenario !== 'default' ? reduceAllMocksForScenario(scenarios, scenario) : scenarios.default;
 
   if (!mocks || mocks.length === 0) {
     throw new Error('Unable to instantiate mocks');
@@ -60,7 +53,7 @@ export const injectMocks = (scenarios: Scenarios, scenario: keyof Scenarios = 'd
 };
 
 
-export const reduceAllMockForScenario = (scenarios: Scenarios, scenario: keyof Scenarios): Mock[] => {
+export const reduceAllMocksForScenario = (scenarios: Scenarios, scenario: keyof Scenarios): Mock[] => {
   if (scenario === 'default') {
     return scenarios.default;
   }
