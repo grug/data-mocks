@@ -11,7 +11,9 @@
     "prepublishOnly": "npm run build",
     "build": "npm run clean && tsc && babel dist/mocks.js --out-file dist/mocks.js && uglifyjs dist/mocks.js -o dist/mocks.js",
     "test": "jest",
-    "publish:patch": "git checkout master && git pull && yarn version --patch && yarn publish --non-interactive && git push"
+    "publish:patch": "git checkout master && git pull && yarn version --patch && yarn publish --non-interactive && git push",
+    "publish:minor": "git checkout master && git pull && yarn version --minor && yarn publish --non-interactive && git push",
+    "publish:major": "git checkout master && git pull && yarn version --major && yarn publish --non-interactive && git push"
   },
   "husky": {
     "hooks": {
