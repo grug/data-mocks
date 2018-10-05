@@ -1,6 +1,6 @@
 {
   "name": "data-mocks",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "main": "dist/mocks.js",
   "types": "dist/mocks.d.ts",
   "repository": "git@github.com:ovotech/data-mocks.git",
@@ -10,7 +10,8 @@
     "clean": "rm -rf dist/",
     "prepublishOnly": "npm run build",
     "build": "npm run clean && tsc && babel dist/mocks.js --out-file dist/mocks.js && uglifyjs dist/mocks.js -o dist/mocks.js",
-    "test": "jest"
+    "test": "jest",
+    "publish:patch": "git checkout master && git pull && yarn version --patch && yarn publish --non-interactive && git push"
   },
   "husky": {
     "hooks": {
