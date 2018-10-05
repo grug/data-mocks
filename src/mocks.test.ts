@@ -1,16 +1,18 @@
-import { injectMocks, HttpMethod, Scenarios, extractScenarioFromLocation, reduceAllMocksForScenario, Mock } from './mocks';
+import {
+  injectMocks,
+  HttpMethod,
+  Scenarios,
+  extractScenarioFromLocation,
+  reduceAllMocksForScenario,
+  Mock
+} from './mocks';
 import * as FetchMock from 'fetch-mock';
 
 declare var jsdom: any;
 
 describe('data-mocks', () => {
   describe('HTTP methods', () => {
-    const httpMethods: HttpMethod[] = [
-      'GET',
-      'POST',
-      'PUT',
-      'DELETE'
-    ];
+    const httpMethods: HttpMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];
 
     httpMethods.forEach(httpMethod => {
       const scenarios: Scenarios = {
@@ -38,7 +40,12 @@ describe('data-mocks', () => {
         { url: /bar/, method: 'GET', response: {}, responseCode: 200 }
       ],
       someScenario: [
-        { url: /bar/, method: 'GET', response: { some: 'otherResponse' }, responseCode: 401 },
+        {
+          url: /bar/,
+          method: 'GET',
+          response: { some: 'otherResponse' },
+          responseCode: 401
+        },
         { url: /baz/, method: 'POST', response: {}, responseCode: 200 }
       ]
     };
@@ -65,10 +72,14 @@ describe('data-mocks', () => {
       expect(result).toEqual([
         { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
         { url: /bar/, method: 'GET', response: {}, responseCode: 200 },
-        { url: /bar/, method: 'GET', response: { some: 'otherResponse' }, responseCode: 401 },
+        {
+          url: /bar/,
+          method: 'GET',
+          response: { some: 'otherResponse' },
+          responseCode: 401
+        },
         { url: /baz/, method: 'POST', response: {}, responseCode: 200 }
       ]);
     });
-
   });
-})
+});
