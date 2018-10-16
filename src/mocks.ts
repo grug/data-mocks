@@ -63,7 +63,7 @@ export const injectMocks = (
         break;
       default:
         throw new Error(
-          `Unrecognized HTTP method ${method} - please check your mock configuration`
+          `Unrecognised HTTP method ${method} - please check your mock configuration`
         );
     }
   });
