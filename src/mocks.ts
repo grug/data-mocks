@@ -1,4 +1,5 @@
 import * as FetchMock from 'fetch-mock';
+import XHRMock, { delay as xhrMockDelay } from 'xhr-mock';
 import { parse } from 'query-string';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -26,6 +27,8 @@ export const injectMocks = (
   scenarios: Scenarios,
   scenario: keyof Scenarios = 'default'
 ): void => {
+  XHRMock.setup();
+
   const mocks: Mock[] =
     scenario !== 'default'
       ? reduceAllMocksForScenario(scenarios, scenario)
@@ -44,19 +47,23 @@ export const injectMocks = (
     switch (method) {
       case 'GET':
         FetchMock.get(url, () => addDelay(delay).then(() => finalResponse));
+        XHRMock.get(url, xhrMockDelay(finalResponse, delay));
         break;
       case 'POST':
         FetchMock.post(url, () => addDelay(delay).then(() => finalResponse));
+        XHRMock.post(url, xhrMockDelay(finalResponse, delay));
         break;
       case 'PUT':
         FetchMock.put(url, () => addDelay(delay).then(() => finalResponse));
+        XHRMock.put(url, xhrMockDelay(finalResponse, delay));
         break;
       case 'DELETE':
         FetchMock.delete(url, () => addDelay(delay).then(() => finalResponse));
+        XHRMock.delete(url, xhrMockDelay(finalResponse, delay));
         break;
       default:
         throw new Error(
-          `Unrecognised HTTP method ${method} - please check your mock configuration`
+          `Unrecognized HTTP method ${method} - please check your mock configuration`
         );
     }
   });
