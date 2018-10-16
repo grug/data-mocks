@@ -1,7 +1,7 @@
 [![npm version](https://badge.fury.io/js/data-mocks.svg)](https://badge.fury.io/js/data-mocks) [![GitHub license](https://img.shields.io/github/license/ovotech/data-mocks.svg)](https://github.com/ovotech/data-mocks)
 
 # data-mocks
-Library to mock local data requests using Fetch
+Library to mock local data requests using Fetch and XHR
 
 # Why is this library useful?
 
