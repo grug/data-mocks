@@ -1,3 +1,4 @@
+import axios from 'axios';
 import {
   injectMocks,
   HttpMethod,
@@ -6,6 +7,7 @@ import {
   reduceAllMocksForScenario,
   Mock
 } from './mocks';
+import XHRMock from 'xhr-mock';
 import * as FetchMock from 'fetch-mock';
 
 declare var jsdom: any;
@@ -23,12 +25,17 @@ describe('data-mocks', () => {
       };
       test(`Mocks calls for ${httpMethod}`, () => {
         const spy = jest.spyOn(FetchMock, httpMethod.toLowerCase() as any);
+        const xhrSpy = jest.spyOn(XHRMock, httpMethod.toLowerCase() as any);
 
         injectMocks(scenarios, 'default');
 
         expect(spy).toHaveBeenCalledTimes(2);
         expect(spy.mock.calls[0][0]).toEqual(/foo/);
         expect(spy.mock.calls[1][0]).toEqual(/bar/);
+
+        expect(xhrSpy).toHaveBeenCalledTimes(2);
+        expect(xhrSpy.mock.calls[0][0]).toEqual(/foo/);
+        expect(xhrSpy.mock.calls[1][0]).toEqual(/bar/);
       });
     });
   });
@@ -80,6 +87,55 @@ describe('data-mocks', () => {
         },
         { url: /baz/, method: 'POST', response: {}, responseCode: 200 }
       ]);
+    });
+  });
+
+  describe('XHR mock calls', () => {
+    const scenarios: Scenarios = {
+      default: [
+        {
+          url: /foo/,
+          method: 'GET',
+          response: { foo: 'GET' },
+          responseCode: 200
+        },
+        {
+          url: /foo/,
+          method: 'POST',
+          response: { foo: 'POST' },
+          responseCode: 200
+        },
+        {
+          url: /foo/,
+          method: 'PUT',
+          response: { foo: 'PUT' },
+          responseCode: 200
+        },
+        {
+          url: /foo/,
+          method: 'DELETE',
+          response: { foo: 'DELETE' },
+          responseCode: 200
+        }
+      ]
+    };
+
+    beforeAll(() => {
+      injectMocks(scenarios, 'default');
+    });
+
+    test('Correct response for mocked XHR endpoints', async () => {
+      const resGET = await axios.get('/foo');
+      expect(resGET.data).toEqual({ foo: 'GET' });
+
+      const resPOST = await axios.post('/foo');
+      expect(resPOST.data).toEqual({ foo: 'POST' });
+
+      const resPUT = await axios.put('/foo');
+      expect(resPUT.data).toEqual({ foo: 'PUT' });
+
+      const resDELETE = await axios.delete('/foo');
+      expect(resDELETE.data).toEqual({ foo: 'DELETE' });
     });
   });
 });
