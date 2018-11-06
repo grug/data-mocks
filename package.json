@@ -6,6 +6,7 @@
   "repository": "git@github.com:ovotech/data-mocks.git",
   "author": "Dave Cooper <dave.cooper@ovoenergy.com>",
   "license": "MIT",
+  "homepage": "https://github.com/ovotech/data-mocks",
   "scripts": {
     "clean": "rm -rf dist/",
     "prepublishOnly": "npm run build",
