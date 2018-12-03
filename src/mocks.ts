@@ -1,6 +1,7 @@
 import * as FetchMock from 'fetch-mock';
 import XHRMock, { delay as xhrMockDelay } from 'xhr-mock';
 import { parse } from 'query-string';
+import { uniqBy } from 'lodash';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -84,7 +85,11 @@ export const reduceAllMocksForScenario = (
     throw new Error(`No mocks found for scenario '${scenario}'`);
   }
 
-  return defaultMocks.concat(scenarioMocks).reduce(
+  const combinedMocks = uniqBy([...scenarioMocks, ...defaultMocks], (m: Mock) =>
+    m.url.toString()
+  );
+
+  return combinedMocks.reduce(
     (acc, mock) => {
       const scenarioSpecificMockIndex = findMockIndexInScenarioByMatcher(
         scenarioMocks,

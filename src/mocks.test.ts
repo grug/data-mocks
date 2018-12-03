@@ -77,15 +77,14 @@ describe('data-mocks', () => {
       const result = reduceAllMocksForScenario(scenarios, 'someScenario');
 
       expect(result).toEqual([
-        { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
-        { url: /bar/, method: 'GET', response: {}, responseCode: 200 },
         {
           url: /bar/,
           method: 'GET',
           response: { some: 'otherResponse' },
           responseCode: 401
         },
-        { url: /baz/, method: 'POST', response: {}, responseCode: 200 }
+        { url: /baz/, method: 'POST', response: {}, responseCode: 200 },
+        { url: /foo/, method: 'GET', response: {}, responseCode: 200 }
       ]);
     });
   });
