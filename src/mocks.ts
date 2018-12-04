@@ -18,12 +18,18 @@ export interface Scenarios {
   [scenario: string]: Mock[];
 }
 
+/**
+ * Gets the corresponding value for `scenario` key in the browser's Location object.
+ */
 export const extractScenarioFromLocation = (location: Location): string => {
   return parse(location.search).scenario
     ? parse(location.search).scenario
     : 'default';
 };
 
+/**
+ * Orchestrator for setting up mocks.
+ */
 export const injectMocks = (
   scenarios: Scenarios,
   scenario: keyof Scenarios = 'default'
@@ -78,6 +84,10 @@ export const injectMocks = (
   });
 };
 
+/**
+ * Returns all mocks for a given scenarios + everything in the default mocks
+ * that don't have a matching scenario mock.
+ */
 export const reduceAllMocksForScenario = (
   scenarios: Scenarios,
   scenario: keyof Scenarios
@@ -104,4 +114,7 @@ export const reduceAllMocksForScenario = (
     .concat(scenarioMocks);
 };
 
+/**
+ * Adds delay (in ms) before resolving a promise.
+ */
 const addDelay = (delay: number) => new Promise(res => setTimeout(res, delay));

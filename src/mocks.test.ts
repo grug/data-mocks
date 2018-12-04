@@ -78,7 +78,6 @@ describe('data-mocks', () => {
 
       expect(result).toEqual([
         { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
-        { url: /bar/, method: 'GET', response: {}, responseCode: 200 },
         {
           url: /bar/,
           method: 'GET',
