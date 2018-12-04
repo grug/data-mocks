@@ -93,9 +93,9 @@ describe('data-mocks', () => {
     test(`Returns default mocks if user specifies scenario with no defined mocks`, () => {
       const scenarios: Scenarios = {
         default: [
-          { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
+          { url: /foo/, method: 'GET', response: {}, responseCode: 200 }
         ],
-        scenario: [],
+        scenario: []
       };
       const result = reduceAllMocksForScenario(scenarios, 'scenario');
       expect(result).toEqual(scenarios.default);
@@ -104,14 +104,14 @@ describe('data-mocks', () => {
     test(`Returns empty array if default and scenario mocks are not defined`, () => {
       const scenarios: Scenarios = {
         default: [],
-        scenario: [],
+        scenario: []
       };
       const result = reduceAllMocksForScenario(scenarios, 'scenario');
       expect(result).toEqual([]);
     });
   });
 
-  describe('XHR mock calls', () => {
+  describe(`XHR mock calls`, () => {
     const scenarios: Scenarios = {
       default: [
         {
@@ -145,7 +145,7 @@ describe('data-mocks', () => {
       injectMocks(scenarios, 'default');
     });
 
-    test('Correct response for mocked XHR endpoints', async () => {
+    test(`Correct response for mocked XHR endpoints`, async () => {
       const resGET = await axios.get('/foo');
       expect(resGET.data).toEqual({ foo: 'GET' });
 
@@ -160,18 +160,18 @@ describe('data-mocks', () => {
     });
   });
 
-  describe('Extract scenario from location', () => {
-    test('Correct scenario name is returned', () => {
+  describe(`Extract scenario from location`, () => {
+    test(`Correct scenario name is returned`, () => {
       window.history.pushState({}, 'Test', '/?scenario=test');
       expect(extractScenarioFromLocation(window.location)).toBe('test');
     });
 
-    test('Default scenario name is returned', () => {
+    test(`Default scenario name is returned`, () => {
       window.history.pushState({}, 'Test', '/');
       expect(extractScenarioFromLocation(window.location)).toBe('default');
     });
 
-    test('Throws error if user uses more than one scenario at a time', () => {
+    test(`Throws error if user uses more than one scenario at a time`, () => {
       window.history.pushState({}, 'Test', '/?scenario=test&scenario=foo');
       expect(() => extractScenarioFromLocation(window.location)).toThrowError(
         'Only one scenario may be used at a time'
