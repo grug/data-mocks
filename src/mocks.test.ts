@@ -4,8 +4,7 @@ import {
   HttpMethod,
   Scenarios,
   extractScenarioFromLocation,
-  reduceAllMocksForScenario,
-  Mock
+  reduceAllMocksForScenario
 } from './mocks';
 import XHRMock from 'xhr-mock';
 import * as FetchMock from 'fetch-mock';
@@ -44,7 +43,8 @@ describe('data-mocks', () => {
     const scenarios: Scenarios = {
       default: [
         { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
-        { url: /bar/, method: 'GET', response: {}, responseCode: 200 }
+        { url: /bar/, method: 'GET', response: {}, responseCode: 200 },
+        { url: /bar/, method: 'POST', response: {}, responseCode: 200 }
       ],
       someScenario: [
         {
@@ -69,7 +69,8 @@ describe('data-mocks', () => {
 
       expect(result).toEqual([
         { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
-        { url: /bar/, method: 'GET', response: {}, responseCode: 200 }
+        { url: /bar/, method: 'GET', response: {}, responseCode: 200 },
+        { url: /bar/, method: 'POST', response: {}, responseCode: 200 }
       ]);
     });
 
@@ -78,6 +79,7 @@ describe('data-mocks', () => {
 
       expect(result).toEqual([
         { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
+        { url: /bar/, method: 'POST', response: {}, responseCode: 200 },
         {
           url: /bar/,
           method: 'GET',
@@ -135,6 +137,25 @@ describe('data-mocks', () => {
 
       const resDELETE = await axios.delete('/foo');
       expect(resDELETE.data).toEqual({ foo: 'DELETE' });
+    });
+  });
+
+  describe('Extract scenario from location', () => {
+    test('Correct scenario name is returned', () => {
+      window.history.pushState({}, 'Test', '/?scenario=test');
+      expect(extractScenarioFromLocation(window.location)).toBe('test');
+    });
+
+    test('Default scenario name is returned', () => {
+      window.history.pushState({}, 'Test', '/');
+      expect(extractScenarioFromLocation(window.location)).toBe('default');
+    });
+
+    test('Throws error if user uses more than one scenario at a time', () => {
+      window.history.pushState({}, 'Test', '/?scenario=test&scenario=foo');
+      expect(() => extractScenarioFromLocation(window.location)).toThrowError(
+        'Only one scenario may be used at a time'
+      );
     });
   });
 });
