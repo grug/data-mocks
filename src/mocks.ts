@@ -1,7 +1,6 @@
 import * as FetchMock from 'fetch-mock';
 import XHRMock, { delay as xhrMockDelay } from 'xhr-mock';
 import { parse } from 'query-string';
-import { find } from 'lodash';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -22,9 +21,11 @@ export interface Scenarios {
  * Gets the corresponding value for `scenario` key in the browser's Location object.
  */
 export const extractScenarioFromLocation = (location: Location): string => {
-  return parse(location.search).scenario
-    ? parse(location.search).scenario
-    : 'default';
+  const { scenario = 'default' } = parse(location.search);
+  if (Array.isArray(scenario)) {
+    throw new Error('Only one scenario may be used at a time');
+  }
+  return scenario;
 };
 
 /**
@@ -106,8 +107,7 @@ export const reduceAllMocksForScenario = (
   return defaultMocks
     .filter(
       d =>
-        !find(
-          scenarioMocks,
+        !scenarioMocks.find(
           s => s.url.toString() === d.url.toString() && d.method === s.method
         )
     )
