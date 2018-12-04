@@ -89,6 +89,26 @@ describe('data-mocks', () => {
         { url: /baz/, method: 'POST', response: {}, responseCode: 200 }
       ]);
     });
+
+    test(`Returns default mocks if user specifies scenario with no defined mocks`, () => {
+      const scenarios: Scenarios = {
+        default: [
+          { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
+        ],
+        scenario: [],
+      };
+      const result = reduceAllMocksForScenario(scenarios, 'scenario');
+      expect(result).toEqual(scenarios.default);
+    });
+
+    test(`Returns empty array if default and scenario mocks are not defined`, () => {
+      const scenarios: Scenarios = {
+        default: [],
+        scenario: [],
+      };
+      const result = reduceAllMocksForScenario(scenarios, 'scenario');
+      expect(result).toEqual([]);
+    });
   });
 
   describe('XHR mock calls', () => {
