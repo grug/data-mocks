@@ -1,6 +1,7 @@
 import * as FetchMock from 'fetch-mock';
 import XHRMock, { delay as xhrMockDelay } from 'xhr-mock';
 import { parse } from 'query-string';
+import { find } from 'lodash';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
@@ -17,12 +18,18 @@ export interface Scenarios {
   [scenario: string]: Mock[];
 }
 
+/**
+ * Gets the corresponding value for `scenario` key in the browser's Location object.
+ */
 export const extractScenarioFromLocation = (location: Location): string => {
   return parse(location.search).scenario
     ? parse(location.search).scenario
     : 'default';
 };
 
+/**
+ * Orchestrator for setting up mocks.
+ */
 export const injectMocks = (
   scenarios: Scenarios,
   scenario: keyof Scenarios = 'default'
@@ -46,19 +53,27 @@ export const injectMocks = (
 
     switch (method) {
       case 'GET':
-        FetchMock.get(url, () => addDelay(delay).then(() => finalResponse));
+        FetchMock.get(url, () => addDelay(delay).then(() => finalResponse), {
+          overwriteRoutes: true
+        });
         XHRMock.get(url, xhrMockDelay(finalResponse, delay));
         break;
       case 'POST':
-        FetchMock.post(url, () => addDelay(delay).then(() => finalResponse));
+        FetchMock.post(url, () => addDelay(delay).then(() => finalResponse), {
+          overwriteRoutes: true
+        });
         XHRMock.post(url, xhrMockDelay(finalResponse, delay));
         break;
       case 'PUT':
-        FetchMock.put(url, () => addDelay(delay).then(() => finalResponse));
+        FetchMock.put(url, () => addDelay(delay).then(() => finalResponse), {
+          overwriteRoutes: true
+        });
         XHRMock.put(url, xhrMockDelay(finalResponse, delay));
         break;
       case 'DELETE':
-        FetchMock.delete(url, () => addDelay(delay).then(() => finalResponse));
+        FetchMock.delete(url, () => addDelay(delay).then(() => finalResponse), {
+          overwriteRoutes: true
+        });
         XHRMock.delete(url, xhrMockDelay(finalResponse, delay));
         break;
       default:
@@ -69,6 +84,10 @@ export const injectMocks = (
   });
 };
 
+/**
+ * Returns all mocks for a given scenarios + everything in the default mocks
+ * that don't have a matching scenario mock.
+ */
 export const reduceAllMocksForScenario = (
   scenarios: Scenarios,
   scenario: keyof Scenarios
@@ -84,27 +103,18 @@ export const reduceAllMocksForScenario = (
     throw new Error(`No mocks found for scenario '${scenario}'`);
   }
 
-  return defaultMocks.concat(scenarioMocks).reduce(
-    (acc, mock) => {
-      const scenarioSpecificMockIndex = findMockIndexInScenarioByMatcher(
-        scenarioMocks,
-        mock.url
-      );
-      const isScenarioSpecificMockPresent = scenarioSpecificMockIndex >= 0;
-
-      isScenarioSpecificMockPresent
-        ? acc.push(scenarios[scenario][scenarioSpecificMockIndex])
-        : acc.push(mock);
-
-      return acc;
-    },
-    [] as Mock[]
-  );
+  return defaultMocks
+    .filter(
+      d =>
+        !find(
+          scenarioMocks,
+          s => s.url.toString() === d.url.toString() && d.method === s.method
+        )
+    )
+    .concat(scenarioMocks);
 };
 
+/**
+ * Adds delay (in ms) before resolving a promise.
+ */
 const addDelay = (delay: number) => new Promise(res => setTimeout(res, delay));
-
-const findMockIndexInScenarioByMatcher = (
-  scenario: Mock[],
-  matcher: RegExp
-): number => scenario.findIndex(mock => mock.url === matcher);

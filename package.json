@@ -35,13 +35,15 @@
   "dependencies": {
     "@types/query-string": "^6.1.0",
     "fetch-mock": "^7.0.7",
+    "lodash": "^4.17.11",
     "node-fetch": "^2.2.0",
     "query-string": "^6.1.0",
     "xhr-mock": "^2.4.1"
   },
   "devDependencies": {
-    "@types/fetch-mock": "^5.12.2",
+    "@types/fetch-mock": "^6.0.4",
     "@types/jest": "^23.1.4",
+    "@types/lodash": "^4.14.118",
     "axios": "^0.18.0",
     "babel-cli": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
