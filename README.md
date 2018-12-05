@@ -2,6 +2,9 @@
 
 # data-mocks
 
+
+<img src="https://i.imgur.com/gEG3io2.jpg" height="250">
+
 Library to mock local data requests using Fetch and XHR
 
 # Why is this library useful?
