@@ -1,8 +1,12 @@
 import * as FetchMock from 'fetch-mock';
-import XHRMock, { delay as xhrMockDelay } from 'xhr-mock';
+import XHRMock, { delay as xhrMockDelay, proxy } from 'xhr-mock';
 import { parse } from 'query-string';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
+
+export interface MockConfig {
+  allowXHRPassthrough: boolean;
+}
 
 export interface Mock {
   url: RegExp;
@@ -33,9 +37,14 @@ export const extractScenarioFromLocation = (location: Location): string => {
  */
 export const injectMocks = (
   scenarios: Scenarios,
-  scenario: keyof Scenarios = 'default'
+  scenario: keyof Scenarios = 'default',
+  config?: MockConfig
 ): void => {
   XHRMock.setup();
+
+  if (config && config.allowXHRPassthrough) {
+    XHRMock.use(proxy);
+  }
 
   const mocks: Mock[] =
     scenario !== 'default'
