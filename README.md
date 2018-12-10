@@ -2,7 +2,6 @@
 
 # data-mocks
 
-
 <img src="https://i.imgur.com/gEG3io2.jpg" height="250">
 
 Library to mock local data requests using Fetch and XHR
@@ -28,6 +27,8 @@ Assuming your project is using `fetch` / `XHR` for HTTP operations:
 - Hooray, all HTTP requests to mocked endpoints will now respond with the mocked data you have specified
 
 # Examples
+
+## Basic mock injection without scenarios (XHR and Fetch)
 
 ```javascript
 import { injectMocks } from 'data-mocks';
@@ -76,6 +77,8 @@ In the above example we are using `axios` as our XHR library of choice. However
 `data-mocks` will work with any library that uses `XMLHttpRequest` under the hood.
 
 ---
+
+## Mock injection with scenarios
 
 ```javascript
 import { injectMocks, extractScenarioFromLocation } from 'data-mocks';
@@ -148,14 +151,21 @@ In this example, if we load our site up with `scenario=failedLogin` in the query
 | responseCode | number | ❌       | Response code. Defaults to 200                                     |
 | delay        | number | ❌       | Delay (in milliseconds) before response is returned. Defaults to 0 |
 
+### MockConfig
+
+| Property            | Type    | Required | Description                                                                                   |
+| ------------------- | ------- | -------- | --------------------------------------------------------------------------------------------- |
+| allowXHRPassthrough | boolean | ❌       | Any unmatched routes for XHR will pass through to the actual endpoint, rather than be mocked. |
+
 ## Exported functions
 
 ### injectMocks
 
-| Parameter | Type                            | Required | Description                                |
-| --------- | ------------------------------- | -------- | ------------------------------------------ |
-| scenarios | [Scenarios](#Scenarios)[]       | ✅       | A mapping of scenarios and their responses |
-| scenario  | keyof [Scenarios](#Scenarios)[] | ❌       | The scenario to run. Defaults to `default` |
+| Parameter | Type                            | Required | Description                                                                 |
+| --------- | ------------------------------- | -------- | --------------------------------------------------------------------------- |
+| scenarios | [Scenarios](#Scenarios)[]       | ✅       | A mapping of scenarios and their responses                                  |
+| scenario  | keyof [Scenarios](#Scenarios)[] | ❌       | The scenario to run. Defaults to `default`                                  |
+| config    | MockConfig                      | ❌       | Config object that allows for different behaviour of how mocks are injected |
 
 ### extractScenarioFromLocation
 
