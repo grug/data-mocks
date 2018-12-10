@@ -181,22 +181,23 @@ describe('data-mocks', () => {
   });
 
   describe('Mock config', () => {
+    const scenarios: Scenarios = {
+      default: [
+        {
+          url: /foo/,
+          method: 'GET',
+          response: { foo: 'GET' },
+          responseCode: 200
+        }
+      ]
+    };
+
     beforeEach(() => {
       jest.clearAllMocks();
     });
 
     test('Sets XHR proxy if allowPassthrough is set in config', () => {
       const xhrSpy = jest.spyOn(XHRMock, 'use');
-      const scenarios: Scenarios = {
-        default: [
-          {
-            url: /foo/,
-            method: 'GET',
-            response: { foo: 'GET' },
-            responseCode: 200
-          }
-        ]
-      };
 
       const mockConfig: MockConfig = {
         allowXHRPassthrough: true
@@ -209,16 +210,6 @@ describe('data-mocks', () => {
 
     test('Does not set XHR proxy if allowPassthrough is false', () => {
       const xhrSpy = jest.spyOn(XHRMock, 'use');
-      const scenarios: Scenarios = {
-        default: [
-          {
-            url: /foo/,
-            method: 'GET',
-            response: { foo: 'GET' },
-            responseCode: 200
-          }
-        ]
-      };
 
       const mockConfig: MockConfig = {
         allowXHRPassthrough: false
@@ -231,16 +222,6 @@ describe('data-mocks', () => {
 
     test('Does not set XHR proxy if config is not passed', () => {
       const xhrSpy = jest.spyOn(XHRMock, 'use');
-      const scenarios: Scenarios = {
-        default: [
-          {
-            url: /foo/,
-            method: 'GET',
-            response: { foo: 'GET' },
-            responseCode: 200
-          }
-        ]
-      };
 
       injectMocks(scenarios, 'default');
       expect(xhrSpy).toHaveBeenCalledTimes(1);
