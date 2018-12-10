@@ -3,10 +3,11 @@ import {
   injectMocks,
   HttpMethod,
   Scenarios,
+  MockConfig,
   extractScenarioFromLocation,
   reduceAllMocksForScenario
 } from './mocks';
-import XHRMock from 'xhr-mock';
+import XHRMock, { proxy } from 'xhr-mock';
 import * as FetchMock from 'fetch-mock';
 
 declare var jsdom: any;
@@ -176,6 +177,55 @@ describe('data-mocks', () => {
       expect(() => extractScenarioFromLocation(window.location)).toThrowError(
         'Only one scenario may be used at a time'
       );
+    });
+  });
+
+  describe('Mock config', () => {
+    const scenarios: Scenarios = {
+      default: [
+        {
+          url: /foo/,
+          method: 'GET',
+          response: { foo: 'GET' },
+          responseCode: 200
+        }
+      ]
+    };
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    test('Sets XHR proxy if allowPassthrough is set in config', () => {
+      const xhrSpy = jest.spyOn(XHRMock, 'use');
+
+      const mockConfig: MockConfig = {
+        allowXHRPassthrough: true
+      };
+
+      injectMocks(scenarios, 'default', mockConfig);
+      expect(xhrSpy).toHaveBeenCalledTimes(2);
+      expect(xhrSpy).toHaveBeenCalledWith(proxy);
+    });
+
+    test('Does not set XHR proxy if allowPassthrough is false', () => {
+      const xhrSpy = jest.spyOn(XHRMock, 'use');
+
+      const mockConfig: MockConfig = {
+        allowXHRPassthrough: false
+      };
+
+      injectMocks(scenarios, 'default', mockConfig);
+      expect(xhrSpy).toHaveBeenCalledTimes(1);
+      expect(xhrSpy).not.toHaveBeenCalledWith(proxy);
+    });
+
+    test('Does not set XHR proxy if config is not passed', () => {
+      const xhrSpy = jest.spyOn(XHRMock, 'use');
+
+      injectMocks(scenarios, 'default');
+      expect(xhrSpy).toHaveBeenCalledTimes(1);
+      expect(xhrSpy).not.toHaveBeenCalledWith(proxy);
     });
   });
 });
