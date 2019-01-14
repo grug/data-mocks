@@ -1,4 +1,4 @@
-import * as FetchMock from 'fetch-mock';
+import { get, post, put, delete as d } from 'fetch-mock';
 import XHRMock, { delay as xhrMockDelay, proxy } from 'xhr-mock';
 import { parse } from 'query-string';
 
@@ -14,6 +14,9 @@ export interface Mock {
   response: object;
   responseCode?: number;
   delay?: number;
+  headers?: {
+    [header: string]: any;
+  };
 }
 
 export interface Scenarios {
@@ -55,43 +58,49 @@ export const injectMocks = (
     throw new Error('Unable to instantiate mocks');
   }
 
-  mocks.forEach(({ method, url, response, responseCode = 200, delay = 0 }) => {
-    const finalResponse = {
-      body: response,
-      status: responseCode
-    };
+  mocks.forEach(
+    ({ method, url, response, headers, responseCode = 200, delay = 0 }) => {
+      const finalResponse = {
+        body: response,
+        status: responseCode
+      };
 
-    switch (method) {
-      case 'GET':
-        FetchMock.get(url, () => addDelay(delay).then(() => finalResponse), {
-          overwriteRoutes: true
-        });
-        XHRMock.get(url, xhrMockDelay(finalResponse, delay));
-        break;
-      case 'POST':
-        FetchMock.post(url, () => addDelay(delay).then(() => finalResponse), {
-          overwriteRoutes: true
-        });
-        XHRMock.post(url, xhrMockDelay(finalResponse, delay));
-        break;
-      case 'PUT':
-        FetchMock.put(url, () => addDelay(delay).then(() => finalResponse), {
-          overwriteRoutes: true
-        });
-        XHRMock.put(url, xhrMockDelay(finalResponse, delay));
-        break;
-      case 'DELETE':
-        FetchMock.delete(url, () => addDelay(delay).then(() => finalResponse), {
-          overwriteRoutes: true
-        });
-        XHRMock.delete(url, xhrMockDelay(finalResponse, delay));
-        break;
-      default:
-        throw new Error(
-          `Unrecognised HTTP method ${method} - please check your mock configuration`
-        );
+      switch (method) {
+        case 'GET':
+          get(url, () => addDelay(delay).then(() => finalResponse), {
+            overwriteRoutes: headers ? false : true,
+            ...(headers ? { headers } : {})
+          });
+          XHRMock.get(url, xhrMockDelay(finalResponse, delay));
+          break;
+        case 'POST':
+          post(url, () => addDelay(delay).then(() => finalResponse), {
+            overwriteRoutes: headers ? false : true,
+            ...(headers ? { headers } : {})
+          });
+          XHRMock.post(url, xhrMockDelay(finalResponse, delay));
+          break;
+        case 'PUT':
+          put(url, () => addDelay(delay).then(() => finalResponse), {
+            overwriteRoutes: headers ? false : true,
+            ...(headers ? { headers } : {})
+          });
+          XHRMock.put(url, xhrMockDelay(finalResponse, delay));
+          break;
+        case 'DELETE':
+          d(url, () => addDelay(delay).then(() => finalResponse), {
+            overwriteRoutes: headers ? false : true,
+            ...(headers ? { headers } : {})
+          });
+          XHRMock.delete(url, xhrMockDelay(finalResponse, delay));
+          break;
+        default:
+          throw new Error(
+            `Unrecognised HTTP method ${method} - please check your mock configuration`
+          );
+      }
     }
-  });
+  );
 };
 
 /**

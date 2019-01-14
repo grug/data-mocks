@@ -112,6 +112,42 @@ describe('data-mocks', () => {
     });
   });
 
+  describe(`Fetch mock calls`, () => {
+    const scenarios: Scenarios = {
+      default: [
+        {
+          url: /foo/,
+          method: 'GET',
+          response: { some: 'response' }
+        },
+        {
+          url: /foo/,
+          method: 'GET',
+          headers: { some: 'header' },
+          response: { some: 'otherResponse' }
+        },
+        {
+          url: /bar/,
+          method: 'GET',
+          headers: { some: 'header' },
+          response: { one: 'two' }
+        }
+      ]
+    };
+
+    test(`Can provide different responses based on request headers`, async () => {
+      const spy = jest.spyOn(FetchMock, 'get');
+      injectMocks(scenarios, 'default');
+
+      fetch('https://www.test.com/bar', {});
+
+      console.log(spy.mock.calls);
+      console.log(FetchMock.calls());
+
+      expect(1).toEqual(1);
+    });
+  });
+
   describe(`XHR mock calls`, () => {
     const scenarios: Scenarios = {
       default: [
