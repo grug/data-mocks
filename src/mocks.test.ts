@@ -171,13 +171,15 @@ describe('data-mocks', () => {
           url: /foo/,
           method: 'POST',
           response: { foo: 'POST' },
-          responseCode: 200
+          responseCode: 200,
+          responseHeaders: {}
         },
         {
           url: /foo/,
           method: 'PUT',
           response: { foo: 'PUT' },
-          responseCode: 200
+          responseCode: 200,
+          responseHeaders: undefined
         },
         {
           url: /foo/,
