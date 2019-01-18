@@ -64,25 +64,25 @@ export const injectMocks = (
     switch (method) {
       case 'GET':
         FetchMock.get(url, () => addDelay(delay).then(() => finalResponse), {
-          overwriteRoutes: true
+          overwriteRoutes: false
         });
         XHRMock.get(url, xhrMockDelay(finalResponse, delay));
         break;
       case 'POST':
         FetchMock.post(url, () => addDelay(delay).then(() => finalResponse), {
-          overwriteRoutes: true
+          overwriteRoutes: false
         });
         XHRMock.post(url, xhrMockDelay(finalResponse, delay));
         break;
       case 'PUT':
         FetchMock.put(url, () => addDelay(delay).then(() => finalResponse), {
-          overwriteRoutes: true
+          overwriteRoutes: false
         });
         XHRMock.put(url, xhrMockDelay(finalResponse, delay));
         break;
       case 'DELETE':
         FetchMock.delete(url, () => addDelay(delay).then(() => finalResponse), {
-          overwriteRoutes: true
+          overwriteRoutes: false
         });
         XHRMock.delete(url, xhrMockDelay(finalResponse, delay));
         break;
