@@ -48,6 +48,13 @@ const scenarios = {
       response: { another: 'response' },
       responseCode: 200,
       delay: 1000
+    },
+    {
+      url: /endpoint-with-headers/,
+      method: 'GET',
+      response: { same: 'response' },
+      responseHeaders: { token: 'mock-token' },
+      responseCode: 200
     }
   ]
 };
@@ -143,13 +150,14 @@ In this example, if we load our site up with `scenario=failedLogin` in the query
 
 ### Mock
 
-| Property     | Type   | Required | Description                                                        |
-| ------------ | ------ | -------- | ------------------------------------------------------------------ |
-| url          | RegExp | ✅       | Regular expression that matches part of the URL                    |
-| method       | string | ✅       | HTTP method matching one of 'GET', 'POST', 'PUT', 'DELETE'         |
-| response     | any    | ✅       | Body of the response                                               |
-| responseCode | number | ❌       | Response code. Defaults to 200                                     |
-| delay        | number | ❌       | Delay (in milliseconds) before response is returned. Defaults to 0 |
+| Property        | Type   | Required | Description                                                        |
+| --------------- | ------ | -------- | ------------------------------------------------------------------ |
+| url             | RegExp | ✅       | Regular expression that matches part of the URL                    |
+| method          | string | ✅       | HTTP method matching one of 'GET', 'POST', 'PUT', 'DELETE'         |
+| response        | any    | ✅       | Body of the response                                               |
+| responseCode    | number | ❌       | Response code. Defaults to 200                                     |
+| responseHeaders | object | ❌       | Response headers. Defaults to empty                                |
+| delay           | number | ❌       | Delay (in milliseconds) before response is returned. Defaults to 0 |
 
 ### MockConfig
 

@@ -19,8 +19,18 @@ describe('data-mocks', () => {
     httpMethods.forEach(httpMethod => {
       const scenarios: Scenarios = {
         default: [
-          { url: /foo/, method: httpMethod, response: {}, responseCode: 200 },
-          { url: /bar/, method: httpMethod, response: {}, responseCode: 200 }
+          {
+            url: /foo/,
+            method: httpMethod,
+            response: {},
+            responseCode: 200
+          },
+          {
+            url: /bar/,
+            method: httpMethod,
+            response: {},
+            responseCode: 200
+          }
         ]
       };
       test(`Mocks calls for ${httpMethod}`, () => {
@@ -43,8 +53,20 @@ describe('data-mocks', () => {
   describe('Scenarios', () => {
     const scenarios: Scenarios = {
       default: [
-        { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
-        { url: /bar/, method: 'GET', response: {}, responseCode: 200 },
+        {
+          url: /foo/,
+          method: 'GET',
+          response: {},
+          responseCode: 200,
+          responseHeaders: { token: 'foo' }
+        },
+        {
+          url: /bar/,
+          method: 'GET',
+          response: {},
+          responseCode: 200,
+          responseHeaders: { token: 'bar' }
+        },
         { url: /bar/, method: 'POST', response: {}, responseCode: 200 }
       ],
       someScenario: [
@@ -69,8 +91,20 @@ describe('data-mocks', () => {
       const result = reduceAllMocksForScenario(scenarios, 'default');
 
       expect(result).toEqual([
-        { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
-        { url: /bar/, method: 'GET', response: {}, responseCode: 200 },
+        {
+          url: /foo/,
+          method: 'GET',
+          response: {},
+          responseCode: 200,
+          responseHeaders: { token: 'foo' }
+        },
+        {
+          url: /bar/,
+          method: 'GET',
+          response: {},
+          responseCode: 200,
+          responseHeaders: { token: 'bar' }
+        },
         { url: /bar/, method: 'POST', response: {}, responseCode: 200 }
       ]);
     });
@@ -79,8 +113,19 @@ describe('data-mocks', () => {
       const result = reduceAllMocksForScenario(scenarios, 'someScenario');
 
       expect(result).toEqual([
-        { url: /foo/, method: 'GET', response: {}, responseCode: 200 },
-        { url: /bar/, method: 'POST', response: {}, responseCode: 200 },
+        {
+          url: /foo/,
+          method: 'GET',
+          response: {},
+          responseCode: 200,
+          responseHeaders: { token: 'foo' }
+        },
+        {
+          url: /bar/,
+          method: 'POST',
+          response: {},
+          responseCode: 200
+        },
         {
           url: /bar/,
           method: 'GET',
@@ -112,14 +157,15 @@ describe('data-mocks', () => {
     });
   });
 
-  describe(`XHR mock calls`, () => {
+  describe('XHR mock calls', () => {
     const scenarios: Scenarios = {
       default: [
         {
           url: /foo/,
           method: 'GET',
           response: { foo: 'GET' },
-          responseCode: 200
+          responseCode: 200,
+          responseHeaders: { token: 'foo' }
         },
         {
           url: /foo/,
@@ -149,19 +195,23 @@ describe('data-mocks', () => {
     test(`Correct response for mocked XHR endpoints`, async () => {
       const resGET = await axios.get('/foo');
       expect(resGET.data).toEqual({ foo: 'GET' });
+      expect(resGET.headers).toEqual({ token: 'foo' });
 
       const resPOST = await axios.post('/foo');
       expect(resPOST.data).toEqual({ foo: 'POST' });
+      expect(resPOST.headers).toEqual({});
 
       const resPUT = await axios.put('/foo');
       expect(resPUT.data).toEqual({ foo: 'PUT' });
+      expect(resPUT.headers).toEqual({});
 
       const resDELETE = await axios.delete('/foo');
       expect(resDELETE.data).toEqual({ foo: 'DELETE' });
+      expect(resDELETE.headers).toEqual({});
     });
   });
 
-  describe(`Extract scenario from location`, () => {
+  describe('Extract scenario from location', () => {
     test(`Correct scenario name is returned`, () => {
       window.history.pushState({}, 'Test', '/?scenario=test');
       expect(extractScenarioFromLocation(window.location)).toBe('test');
