@@ -35,7 +35,7 @@
   "dependencies": {
     "fetch-mock": "^7.0.7",
     "node-fetch": "^2.2.0",
-    "query-string": "^6.1.0",
+    "query-string": "^5.1.1",
     "xhr-mock": "^2.4.1"
   },
   "devDependencies": {
@@ -44,7 +44,7 @@
     "@babel/preset-env": "^7.2.0",
     "@types/fetch-mock": "^6.0.4",
     "@types/jest": "^23.3.10",
-    "@types/query-string": "^6.1.0",
+    "@types/query-string": "^5.1.0",
     "axios": "^0.18.0",
     "husky": "^1.1.1",
     "jest": "^23.6.0",
