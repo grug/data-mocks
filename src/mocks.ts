@@ -5,7 +5,8 @@ import { parse } from 'query-string';
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 
 export interface MockConfig {
-  allowXHRPassthrough: boolean;
+  allowXHRPassthrough?: boolean;
+  allowFetchPassthrough?: boolean;
 }
 
 export interface Mock {
@@ -45,6 +46,10 @@ export const injectMocks = (
 
   if (config && config.allowXHRPassthrough) {
     XHRMock.use(proxy);
+  }
+
+  if (config && config.allowFetchPassthrough) {
+    FetchMock.config.fallbackToNetwork = true;
   }
 
   const mocks: Mock[] =

@@ -10,8 +10,6 @@ import {
 import XHRMock, { proxy } from 'xhr-mock';
 import * as FetchMock from 'fetch-mock';
 
-declare var jsdom: any;
-
 describe('data-mocks', () => {
   describe('HTTP methods', () => {
     const httpMethods: HttpMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];
@@ -80,10 +78,12 @@ describe('data-mocks', () => {
       ]
     };
     test(`Can extract the scenario from anywhere in the URL`, () => {
-      jsdom.reconfigure({
-        url: 'https://www.foo.com?foo=bar&scenario=someScenario'
-      });
-      const scenario = extractScenarioFromLocation(location);
+      window.history.pushState(
+        {},
+        'Test',
+        '/?foo=bar&baz=bar&scenario=someScenario'
+      );
+      const scenario = extractScenarioFromLocation(window.location);
       expect(scenario).toEqual('someScenario');
     });
 
@@ -248,7 +248,7 @@ describe('data-mocks', () => {
       jest.clearAllMocks();
     });
 
-    test('Sets XHR proxy if allowPassthrough is set in config', () => {
+    test('Sets XHR proxy if allowXHRPassthrough is set in config', () => {
       const xhrSpy = jest.spyOn(XHRMock, 'use');
 
       const mockConfig: MockConfig = {
@@ -260,7 +260,7 @@ describe('data-mocks', () => {
       expect(xhrSpy).toHaveBeenCalledWith(proxy);
     });
 
-    test('Does not set XHR proxy if allowPassthrough is false', () => {
+    test('Does not set XHR proxy if allowXHRPassthrough is false', () => {
       const xhrSpy = jest.spyOn(XHRMock, 'use');
 
       const mockConfig: MockConfig = {
@@ -278,6 +278,28 @@ describe('data-mocks', () => {
       injectMocks(scenarios, 'default');
       expect(xhrSpy).toHaveBeenCalledTimes(1);
       expect(xhrSpy).not.toHaveBeenCalledWith(proxy);
+    });
+
+    test('Sets fallbackToNetwork to false if allowFetchPassthrough is set to false in config', () => {
+      const mockConfig: MockConfig = {
+        allowFetchPassthrough: false
+      };
+      injectMocks(scenarios, 'default', mockConfig);
+      expect(FetchMock.config.fallbackToNetwork).toBe(false);
+    });
+
+    test('Sets fallbackToNetwork to false if allowFetchPassthrough is not passed in', () => {
+      const mockConfig: MockConfig = {};
+      injectMocks(scenarios, 'default', mockConfig);
+      expect(FetchMock.config.fallbackToNetwork).toBe(false);
+    });
+
+    test('Sets fallbackToNetwork to false if allowFetchPassthrough is set to true in config', () => {
+      const mockConfig: MockConfig = {
+        allowFetchPassthrough: true
+      };
+      injectMocks(scenarios, 'default', mockConfig);
+      expect(FetchMock.config.fallbackToNetwork).toBe(true);
     });
   });
 });
