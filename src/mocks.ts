@@ -1,4 +1,4 @@
-import * as FetchMock from 'fetch-mock';
+import * as FetchMock from 'fetch-mock/src/client';
 import XHRMock, { delay as xhrMockDelay, proxy } from 'xhr-mock';
 import { parse } from 'query-string';
 

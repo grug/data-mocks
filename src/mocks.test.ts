@@ -8,7 +8,7 @@ import {
   reduceAllMocksForScenario
 } from './mocks';
 import XHRMock, { proxy } from 'xhr-mock';
-import * as FetchMock from 'fetch-mock';
+import * as FetchMock from 'fetch-mock/src/client';
 
 describe('data-mocks', () => {
   describe('HTTP methods', () => {
