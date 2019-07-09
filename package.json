@@ -32,7 +32,7 @@
     }
   },
   "dependencies": {
-    "fetch-mock": "github:wheresrhys/fetch-mock#v7.3.5",
+    "fetch-mock": "^7.3.1",
     "node-fetch": "^2.2.0",
     "query-string": "^5.1.1",
     "xhr-mock": "^2.4.1"
