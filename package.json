@@ -32,7 +32,7 @@
     }
   },
   "dependencies": {
-    "fetch-mock": "^7.3.1",
+    "fetch-mock": "^7.3.6",
     "node-fetch": "^2.2.0",
     "query-string": "^5.1.1",
     "xhr-mock": "^2.4.1"
