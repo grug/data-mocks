@@ -294,7 +294,7 @@ describe('data-mocks', () => {
       expect(FetchMock.config.fallbackToNetwork).toBe(false);
     });
 
-    test('Sets fallbackToNetwork to false if allowFetchPassthrough is set to true in config', () => {
+    test('Sets fallbackToNetwork to true if allowFetchPassthrough is set to true in config', () => {
       const mockConfig: MockConfig = {
         allowFetchPassthrough: true
       };
