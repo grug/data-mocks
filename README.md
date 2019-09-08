@@ -161,9 +161,10 @@ In this example, if we load our site up with `scenario=failedLogin` in the query
 
 ### MockConfig
 
-| Property            | Type    | Required | Description                                                                                   |
-| ------------------- | ------- | -------- | --------------------------------------------------------------------------------------------- |
-| allowXHRPassthrough | boolean | ❌       | Any unmatched routes for XHR will pass through to the actual endpoint, rather than be mocked. |
+| Property              | Type    | Required | Description                                                                                                        |
+| -------------------   | ------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
+| allowXHRPassthrough   | boolean | ❌       | Any unmatched routes for XHR will pass through to the actual endpoint, rather than be mocked. Defaults to false.   |
+| allowFetchPassthrough | boolean | ❌       | Any unmatched routes for fetch will pass through to the actual endpoint, rather than be mocked. Defaults to false. |
 
 ## Exported functions
 
