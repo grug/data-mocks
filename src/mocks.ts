@@ -12,7 +12,7 @@ export interface MockConfig {
 export interface Mock {
   url: RegExp;
   method: HttpMethod;
-  response: object;
+  response: object | string;
   responseCode?: number;
   responseHeaders?: Record<string, string>;
   delay?: number;
