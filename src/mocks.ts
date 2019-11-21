@@ -44,10 +44,6 @@ export const injectMocks = (
 ): void => {
   XHRMock.setup();
 
-  if (config && config.allowXHRPassthrough) {
-    XHRMock.use(proxy);
-  }
-
   if (config && config.allowFetchPassthrough) {
     FetchMock.config.fallbackToNetwork = true;
   }
@@ -112,6 +108,10 @@ export const injectMocks = (
       }
     }
   );
+
+  if (config && config.allowXHRPassthrough) {
+    XHRMock.use(proxy);
+  }
 };
 
 /**

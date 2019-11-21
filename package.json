@@ -9,8 +9,8 @@
   "homepage": "https://github.com/ovotech/data-mocks",
   "scripts": {
     "clean": "rm -rf dist/",
-    "prepublishOnly": "npm run build",
-    "build": "npm run clean && tsc && babel dist/mocks.js --out-file dist/mocks.js && uglifyjs dist/mocks.js -mco dist/mocks.js",
+    "prepublishOnly": "yarn build",
+    "build": "yarn clean && tsc && babel dist/mocks.js --out-file dist/mocks.js && uglifyjs dist/mocks.js -mco dist/mocks.js",
     "test": "jest",
     "publish:patch": "git checkout master && git pull && yarn version --patch && yarn publish --non-interactive && git push",
     "publish:minor": "git checkout master && git pull && yarn version --minor && yarn publish --non-interactive && git push",
@@ -33,7 +33,6 @@
   },
   "dependencies": {
     "fetch-mock": "^7.3.6",
-    "node-fetch": "^2.2.0",
     "query-string": "^5.1.1",
     "xhr-mock": "^2.4.1"
   },
