@@ -301,5 +301,28 @@ describe('data-mocks', () => {
       injectMocks(scenarios, 'default', mockConfig);
       expect(FetchMock.config.fallbackToNetwork).toBe(true);
     });
+
+    test('Returns mock data if allowXHRPassthrough is set to true and route exists as mock', async () => {
+      const mockConfig: MockConfig = {
+        allowXHRPassthrough: true
+      };
+      injectMocks(scenarios, 'default', mockConfig);
+      const resGET = await axios.get('/foo');
+      expect(resGET.data).toEqual({ foo: 'GET' });
+    });
+
+    test('Returns error if allowXHRPassthrough is set to true and route does not exists as mock', async () => {
+      // We only expect an error in this case becaue the route does not exist.
+      // We just want to see if we attempted a real network request here.
+      const mockConfig: MockConfig = {
+        allowXHRPassthrough: true
+      };
+      injectMocks(scenarios, 'default', mockConfig);
+      try {
+        await axios.get('/bar');
+      } catch (e) {
+        expect(e.message).toContain('Network Error');
+      }
+    });
   });
 });
