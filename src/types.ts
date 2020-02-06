@@ -16,17 +16,17 @@ export type HttpMock = {
 
 export type GraphQLMock = {
   url: RegExp;
-  responseCode?: number;
-  responseHeaders?: Record<string, string>;
-  delay?: number;
   method: 'GRAPHQL';
   operations: Array<Operation>;
 };
 
 export type Operation = {
   type: 'query' | 'mutation';
-  name: string;
+  operationName: string;
   response: object;
+  responseCode?: number;
+  responseHeaders?: Record<string, string>;
+  delay?: number;
 };
 
 export type Mock = HttpMock | GraphQLMock;

@@ -53,10 +53,10 @@ describe('data-mocks', () => {
           {
             url: /a/,
             method: 'GRAPHQL',
-            responseCode: 200,
             operations: [
               {
-                name: 'something',
+                responseCode: 200,
+                operationName: 'something',
                 type: 'query',
                 response: { foo: 'world' }
               }
@@ -65,10 +65,10 @@ describe('data-mocks', () => {
           {
             url: /b/,
             method: 'GRAPHQL',
-            responseCode: 200,
             operations: [
               {
-                name: 'somethingElse',
+                operationName: 'somethingElse',
+                responseCode: 200,
                 type: 'query',
                 response: { bar: 'baz' }
               }
@@ -97,10 +97,10 @@ describe('data-mocks', () => {
           {
             url: /a/,
             method: 'GRAPHQL',
-            responseCode: 200,
             operations: [
               {
-                name: 'something',
+                responseCode: 200,
+                operationName: 'something',
                 type: 'mutation',
                 response: { foo: 'world' }
               }
@@ -109,10 +109,10 @@ describe('data-mocks', () => {
           {
             url: /b/,
             method: 'GRAPHQL',
-            responseCode: 200,
             operations: [
               {
-                name: 'somethingElse',
+                responseCode: 200,
+                operationName: 'somethingElse',
                 type: 'mutation',
                 response: { bar: 'baz' }
               }

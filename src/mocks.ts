@@ -131,39 +131,70 @@ function handleRestMock({
 /**
  * Mocks the right HTTP method for a GraphQL mock.
  */
-function handleGraphQLMock({
-  url,
-  responseCode = 200,
-  responseHeaders,
-  delay = 0,
-  operations
-}: GraphQLMock) {
-  operations.forEach(({ type, response }) => {
-    const finalResponse = {
-      body: response,
-      status: responseCode,
-      headers: responseHeaders
-    };
-
+function handleGraphQLMock({ url, operations }: GraphQLMock) {
+  operations.forEach(({ type }) => {
     switch (type) {
       case 'query':
-        FetchMock.get(url, () => addDelay(delay).then(() => finalResponse), {
-          overwriteRoutes: false
-        });
-        XHRMock.get(url, xhrMockDelay(finalResponse, delay));
+        // TODO do this for FetchMock.get()
+
+        FetchMock.post(
+          url,
+          ({ body }) => {
+            const mock = operations.find(
+              ({ operationName }) => operationName === body.operationName
+            )!;
+
+            const finalResponse = {
+              body: mock.response,
+              status: mock.responseCode,
+              headers: mock.responseHeaders
+            };
+
+            return addDelay(mock.delay ? mock.delay : 0).then(
+              () => finalResponse
+            );
+          },
+          {
+            overwriteRoutes: false
+          }
+        );
         break;
       case 'mutation':
-        FetchMock.post(url, () => addDelay(delay).then(() => finalResponse), {
-          overwriteRoutes: false
-        });
-        XHRMock.post(url, xhrMockDelay(finalResponse, delay));
+        FetchMock.post(
+          url,
+          ({ body }) => {
+            const mock = operations.find(
+              ({ operationName }) => operationName === body.operationName
+            )!;
+
+            const finalResponse = {
+              body: mock.response,
+              status: mock.responseCode,
+              headers: mock.responseHeaders
+            };
+
+            return addDelay(mock.delay ? mock.delay : 0).then(
+              () => finalResponse
+            );
+          },
+          {
+            overwriteRoutes: false
+          }
+        );
         break;
       default:
         throw new Error(
-          `Unrecognised GraphQL operation type ${type} - please check your mock configuration`
+          `Unrecognised GraphQL operation ${type} - please check your mock configuration`
         );
     }
   });
+
+  // XHRMock.get(url, xhrMockDelay(finalResponse, delay));
+
+  // FetchMock.post(url, () => addDelay(delay).then(() => finalResponse), {
+  //   overwriteRoutes: false
+  // });
+  // XHRMock.post(url, xhrMockDelay(finalResponse, delay));
 }
 
 /**
