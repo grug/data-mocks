@@ -1,10 +1,11 @@
 [![npm version](https://badge.fury.io/js/data-mocks.svg)](https://badge.fury.io/js/data-mocks) [![GitHub license](https://img.shields.io/github/license/ovotech/data-mocks.svg)](https://github.com/ovotech/data-mocks)
 ![npm](https://img.shields.io/npm/dm/data-mocks.svg)
+
 # data-mocks
 
 <img src="https://i.imgur.com/gEG3io2.jpg" height="250">
 
-Library to mock local data requests using Fetch and XHR
+Library to mock REST (Fetch or XHR) and GraphQL requests
 
 # Why is this library useful?
 
@@ -15,8 +16,6 @@ Typically, this sort of problem has been solved by either writing a separate moc
 This library aims to allow rapid local development without the dependency of a database or fully implemented APIs.
 
 # Setup
-
-Assuming your project is using `fetch` / `XHR` for HTTP operations:
 
 - Either `npm install data-mocks` or `yarn add data-mocks`
 - Optional: extract the scenario from URL using the imported `extractScenarioFromLocation()` function
@@ -162,7 +161,7 @@ In this example, if we load our site up with `scenario=failedLogin` in the query
 ### MockConfig
 
 | Property              | Type    | Required | Description                                                                                                        |
-| -------------------   | ------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
+| --------------------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
 | allowXHRPassthrough   | boolean | ❌       | Any unmatched routes for XHR will pass through to the actual endpoint, rather than be mocked. Defaults to false.   |
 | allowFetchPassthrough | boolean | ❌       | Any unmatched routes for fetch will pass through to the actual endpoint, rather than be mocked. Defaults to false. |
 

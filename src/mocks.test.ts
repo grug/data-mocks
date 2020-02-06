@@ -1,12 +1,10 @@
 import axios from 'axios';
 import {
   injectMocks,
-  HttpMethod,
-  Scenarios,
-  MockConfig,
   extractScenarioFromLocation,
   reduceAllMocksForScenario
 } from './mocks';
+import { HttpMethod, Scenarios, MockConfig } from './types';
 import XHRMock, { proxy } from 'xhr-mock';
 import * as FetchMock from 'fetch-mock/src/client';
 
@@ -44,6 +42,95 @@ describe('data-mocks', () => {
         expect(xhrSpy).toHaveBeenCalledTimes(2);
         expect(xhrSpy.mock.calls[0][0]).toEqual(/foo/);
         expect(xhrSpy.mock.calls[1][0]).toEqual(/bar/);
+      });
+    });
+  });
+
+  describe('GraphQL methods', () => {
+    describe('Query', () => {
+      const scenarios: Scenarios = {
+        default: [
+          {
+            url: /a/,
+            method: 'GRAPHQL',
+            responseCode: 200,
+            operations: [
+              {
+                name: 'something',
+                type: 'query',
+                response: { foo: 'world' }
+              }
+            ]
+          },
+          {
+            url: /b/,
+            method: 'GRAPHQL',
+            responseCode: 200,
+            operations: [
+              {
+                name: 'somethingElse',
+                type: 'query',
+                response: { bar: 'baz' }
+              }
+            ]
+          }
+        ]
+      };
+
+      test('Mock calls for GraphQL query', () => {
+        const spy = jest.spyOn(FetchMock, 'get');
+        const xhrSpy = jest.spyOn(XHRMock, 'get');
+
+        injectMocks(scenarios, 'default');
+
+        expect(spy.mock.calls[2][0]).toEqual(/a/);
+        expect(spy.mock.calls[3][0]).toEqual(/b/);
+
+        expect(xhrSpy.mock.calls[2][0]).toEqual(/a/);
+        expect(xhrSpy.mock.calls[3][0]).toEqual(/b/);
+      });
+    });
+
+    describe('Mutation', () => {
+      const scenarios: Scenarios = {
+        default: [
+          {
+            url: /a/,
+            method: 'GRAPHQL',
+            responseCode: 200,
+            operations: [
+              {
+                name: 'something',
+                type: 'mutation',
+                response: { foo: 'world' }
+              }
+            ]
+          },
+          {
+            url: /b/,
+            method: 'GRAPHQL',
+            responseCode: 200,
+            operations: [
+              {
+                name: 'somethingElse',
+                type: 'mutation',
+                response: { bar: 'baz' }
+              }
+            ]
+          }
+        ]
+      };
+      test('Mock calls for GraphQL mutation', () => {
+        const spy = jest.spyOn(FetchMock, 'post');
+        const xhrSpy = jest.spyOn(XHRMock, 'post');
+
+        injectMocks(scenarios, 'default');
+
+        expect(spy.mock.calls[2][0]).toEqual(/a/);
+        expect(spy.mock.calls[3][0]).toEqual(/b/);
+
+        expect(xhrSpy.mock.calls[2][0]).toEqual(/a/);
+        expect(xhrSpy.mock.calls[3][0]).toEqual(/b/);
       });
     });
   });

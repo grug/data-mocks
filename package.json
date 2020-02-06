@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "fetch-mock": "^7.3.6",
+    "graphql-tag": "^2.10.3",
     "query-string": "^5.1.1",
     "xhr-mock": "^2.4.1"
   },
