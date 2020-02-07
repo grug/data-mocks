@@ -55,6 +55,8 @@
   "keywords": [
     "mocking",
     "mocks",
-    "testing"
+    "testing",
+    "rest",
+    "graphql"
   ]
 }
