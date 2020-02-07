@@ -7,11 +7,11 @@ export type MockConfig = {
 
 export type HttpMock = {
   url: RegExp;
+  method: HttpMethod;
+  response: object | string;
   responseCode?: number;
   responseHeaders?: Record<string, string>;
   delay?: number;
-  method: HttpMethod;
-  response: object | string;
 };
 
 export type GraphQLMock = {

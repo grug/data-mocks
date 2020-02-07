@@ -5,7 +5,7 @@
 
 <img src="https://i.imgur.com/gEG3io2.jpg" height="250">
 
-Library to mock REST (Fetch or XHR) and GraphQL requests
+Library (written in TypeScript) to mock REST and GraphQL requests
 
 # Why is this library useful?
 
@@ -25,9 +25,15 @@ This library aims to allow rapid local development without the dependency of a d
 - Pass array of `Scenario`'s to `injectMocks()`
 - Hooray, all HTTP requests to mocked endpoints will now respond with the mocked data you have specified
 
+# REST + GraphQL
+
+`data-mocks` works with either REST or GraphQL requests. It is also possible to easily mock both in the same application.
+
+See the examples below to see how this is done.
+
 # Examples
 
-## Basic mock injection without scenarios (XHR and Fetch)
+## Basic mock injection without scenarios
 
 ```javascript
 import { injectMocks } from 'data-mocks';
@@ -60,13 +66,13 @@ const scenarios = {
 
 injectMocks(scenarios);
 
-fetch('http://foo.com/login', { method: 'POST', body: {} }).then(response =>
-  console.log(response)
-); // resolves with { some: 'good response' } after a 200ms delay
+fetch('http://foo.com/login', { method: 'POST', body: {} })
+  .then(response => response.json())
+  .then(myJson => console.log(myJson)); // resolves with { some: 'good response' } after a 200ms delay
 
-fetch('http://foo.com/some-other-endpoint').then(response =>
-  console.log(response)
-); // resolves with { another: 'response' } after a 1 second delay
+fetch('http://foo.com/some-other-endpoint')
+  .then(response => response.json())
+  .then(myJson => console.log(myJson)); // resolves with { another: 'response' } after a 1 second delay
 
 axios.post('http://foo.com/login', {}).then(response => console.log(response)); // resolves with { another: 'response' } after a 200ms delay
 
@@ -117,9 +123,8 @@ const scenarios = {
 };
 
 injectMocks(scenarios, 'failedLogin');
-// The above line could be rewritten as:
-// const scenario = extractScenarioFromLocation(window.location);
-// injectMocks(scenarios, scenario);
+
+// injectMocks(scenarios, extractScenarioFromLocation(window.location));
 
 fetch('http://foo.com/login', { method: 'POST', body: {} }).then(response =>
   console.log(response)
@@ -136,27 +141,91 @@ axios
   .then(response => console.log(response)); // resolves with { another: 'response' } after a 1 second delay
 ```
 
-In this example, if we load our site up with `scenario=failedLogin` in the querystring and then attempt to hit the `login` endpoint, it will fail with a 401. However, the `some-other-endpoint` endpoint will still respond with the response in the `default` scenario as we have not provided one in the `failedLogin` scenario.
+In this example, if we load our site up with `?scenario=failedLogin` in the querystring and then attempt to hit the `login` endpoint, it will fail with a 401. However, the `some-other-endpoint` endpoint will still respond with the response in the `default` scenario as we have not provided one in the `failedLogin` scenario.
 
-## Exported interfaces
+## Basic GraphQL mock injection (Fetch)
+
+Here, we have a React application using `urql` as a GraphQL client. This shows how GraphQL queries work and it can be assumed that if you want to use REST mocks in this application, you can do so as you normally would (see examples above).
+
+In reality, the mock definitions would live at a higher level (like the entrypoint into the application) where they could be injected only if we were in development mode.
+
+```tsx
+import React from 'react';
+import { injectMocks, extractScenarioFromLocation } from 'data-mocks';
+import gql from 'graphql-tag';
+
+const mocks: Scenarios = {
+  default: [
+    {
+      url: /graphql/,
+      method: 'GRAPHQL',
+      operations: [
+        {
+          operationName: 'Query',
+          type: 'query',
+          response: { data: { test: 'test' } }
+        },
+        {
+          operationName: 'Mutation',
+          type: 'mutation',
+          response: { data: { test: 'test' } }
+        }
+      ]
+    }
+  ]
+};
+
+injectMocks(scenarios, extractScenarioFromLocation(window.location));
+
+const Component = () => {
+  const [result] = useQuery({ query: Query }); // result will be data: { test: 'test' }
+
+  return <>{result.data.test}</>;
+};
+```
+
+## Exported types
 
 ### Scenarios
 
-| Property   | Type   | Required | Description                                                                                      |
-| ---------- | ------ | -------- | ------------------------------------------------------------------------------------------------ |
-| default    | Mock[] | ✅       | The default scenario mapping. Provides a default set of mocked responses                         |
-| [scenario] | Mock[] | ❌       | Additional scenario mappings. The key is the name of the scenario and is what is used in the URL |
+| Property   | Type   | Required | Description                                                                                       |
+| ---------- | ------ | -------- | ------------------------------------------------------------------------------------------------- |
+| default    | Mock[] | ✅       | The default scenario mapping. Provides a default set of mocked responses.                         |
+| [scenario] | Mock[] | ❌       | Additional scenario mappings. The key is the name of the scenario and is what is used in the URL. |
+
+### HttpMock
+
+| Property        | Type             | Required | Description                                                         |
+| --------------- | ---------------- | -------- | ------------------------------------------------------------------- |
+| url             | RegExp           | ✅       | Regular expression that matches part of the URL.                    |
+| method          | string           | ✅       | HTTP method matching one of 'GET', 'POST', 'PUT', 'DELETE'.         |
+| response        | object \| string | ✅       | Body of the response.                                               |
+| responseCode    | number           | ❌       | Response code. Defaults to 200.                                     |
+| responseHeaders | object           | ❌       | Response headers. Defaults to empty.                                |
+| delay           | number           | ❌       | Delay (in milliseconds) before response is returned. Defaults to 0. |
+
+### GraphQLMock
+
+| Property   | Type             | Required | Description                                               |
+| ---------- | ---------------- | -------- | --------------------------------------------------------- |
+| url        | RegExp           | ✅       | Regular expression that matches part of the URL.          |
+| method     | string           | ✅       | Must be 'GRAPHQL' to specify that this is a GraphQL mock. |
+| operations | Array<Operation> | ✅       | Array of GraphQL operations for this request.             |
 
 ### Mock
 
-| Property        | Type   | Required | Description                                                        |
-| --------------- | ------ | -------- | ------------------------------------------------------------------ |
-| url             | RegExp | ✅       | Regular expression that matches part of the URL                    |
-| method          | string | ✅       | HTTP method matching one of 'GET', 'POST', 'PUT', 'DELETE'         |
-| response        | any    | ✅       | Body of the response                                               |
-| responseCode    | number | ❌       | Response code. Defaults to 200                                     |
-| responseHeaders | object | ❌       | Response headers. Defaults to empty                                |
-| delay           | number | ❌       | Delay (in milliseconds) before response is returned. Defaults to 0 |
+Union type of [`HttpMock`](#HttpMock) and [`GraphQLMock`](#GraphQLMock).
+
+### Operation
+
+| Property        | Type   | Required | Description                                                         |
+| --------------- | ------ | -------- | ------------------------------------------------------------------- |
+| type            | string | ✅       | GraphQL operation type. Must be either `query` or `mutation`.       |
+| operationName   | string | ✅       | GraphQL operation name.                                             |
+| response        | object | ✅       | Body of the response.                                               |
+| responseCode    | number | ❌       | Response code. Defaults to 200.                                     |
+| responseHeaders | object | ❌       | Response headers. Defaults to empty.                                |
+| delay           | number | ❌       | Delay (in milliseconds) before response is returned. Defaults to 0. |
 
 ### MockConfig
 
@@ -180,3 +249,7 @@ In this example, if we load our site up with `scenario=failedLogin` in the query
 | Parameter | Type                                                                  | Required | Description                                                                                                      |
 | --------- | --------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------------- |
 | location  | [Location](https://developer.mozilla.org/en-US/docs/Web/API/Location) | ✅       | The browser location object. The value for the `scenario` part of the querystring will be extracted and returned |
+
+## Gotchas
+
+- GraphQL mocks only work with clients that use Fetch. XHR is currently not supported for this.
