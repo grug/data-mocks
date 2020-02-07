@@ -202,7 +202,7 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
   FetchMock.get(url, u => {
     const mock = findMockGet(u);
 
-    if (!mock) {
+    if (!mock || (mock && mock.type === 'mutation')) {
       return graphQLErrorResponse;
     }
 
