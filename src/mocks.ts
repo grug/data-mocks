@@ -132,17 +132,29 @@ function handleRestMock({
  * Mocks the right HTTP method for a GraphQL mock.
  */
 function handleGraphQLMock({ url, operations }: GraphQLMock) {
+  const graphQLErrorResponse = { errors: [] };
+  const findMockGet = u => {
+    const parsedUrl = new URL(u);
+    const operationName = parsedUrl.searchParams.get('operationName');
+    return operations.find(o => o.operationName === operationName);
+  };
+  const findMockPost = postBody => {
+    return operations.find(
+      ({ operationName }) => operationName === postBody.operationName
+    );
+  };
+  const delayedResponse = (delay, response) => {
+    return addDelay(delay ? delay : 0).then(() => response);
+  };
+
   operations.forEach(({ type }) => {
     switch (type) {
       case 'query':
         FetchMock.get(url, u => {
-          const parsedUrl = new URL(u);
-          const operationName = parsedUrl.searchParams.get('operationName');
-
-          const mock = operations.find(o => o.operationName === operationName);
+          const mock = findMockGet(u);
 
           if (!mock) {
-            return { errors: [] };
+            return graphQLErrorResponse;
           }
 
           const finalResponse = {
@@ -151,20 +163,16 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
             headers: mock.responseHeaders
           };
 
-          return addDelay(mock.delay ? mock.delay : 0).then(
-            () => finalResponse
-          );
+          return delayedResponse(mock.delay, finalResponse);
         });
 
         FetchMock.post(
           url,
           ({ body }) => {
-            const mock = operations.find(
-              ({ operationName }) => operationName === body.operationName
-            );
+            const mock = findMockPost(body);
 
             if (!mock) {
-              return { errors: [] };
+              return graphQLErrorResponse;
             }
 
             const finalResponse = {
@@ -173,9 +181,7 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
               headers: mock.responseHeaders
             };
 
-            return addDelay(mock.delay ? mock.delay : 0).then(
-              () => finalResponse
-            );
+            return delayedResponse(mock.delay, finalResponse);
           },
           {
             overwriteRoutes: false
@@ -186,9 +192,7 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
         FetchMock.post(
           url,
           ({ body }) => {
-            const mock = operations.find(
-              ({ operationName }) => operationName === body.operationName
-            );
+            const mock = findMockPost(body);
 
             if (!mock) {
               return { errors: [] };
@@ -200,9 +204,7 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
               headers: mock.responseHeaders
             };
 
-            return addDelay(mock.delay ? mock.delay : 0).then(
-              () => finalResponse
-            );
+            return delayedResponse(mock.delay, finalResponse);
           },
           {
             overwriteRoutes: false
@@ -215,13 +217,6 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
         );
     }
   });
-
-  // XHRMock.get(url, xhrMockDelay(finalResponse, delay));
-
-  // FetchMock.post(url, () => addDelay(delay).then(() => finalResponse), {
-  //   overwriteRoutes: false
-  // });
-  // XHRMock.post(url, xhrMockDelay(finalResponse, delay));
 }
 
 /**
