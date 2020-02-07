@@ -135,14 +135,37 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
   operations.forEach(({ type }) => {
     switch (type) {
       case 'query':
-        // TODO do this for FetchMock.get()
+        FetchMock.get(url, u => {
+          const parsedUrl = new URL(u);
+          const operationName = parsedUrl.searchParams.get('operationName');
+
+          const mock = operations.find(o => o.operationName === operationName);
+
+          if (!mock) {
+            return { errors: [] };
+          }
+
+          const finalResponse = {
+            body: mock.response,
+            status: mock.responseCode,
+            headers: mock.responseHeaders
+          };
+
+          return addDelay(mock.delay ? mock.delay : 0).then(
+            () => finalResponse
+          );
+        });
 
         FetchMock.post(
           url,
           ({ body }) => {
             const mock = operations.find(
               ({ operationName }) => operationName === body.operationName
-            )!;
+            );
+
+            if (!mock) {
+              return { errors: [] };
+            }
 
             const finalResponse = {
               body: mock.response,
@@ -165,7 +188,11 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
           ({ body }) => {
             const mock = operations.find(
               ({ operationName }) => operationName === body.operationName
-            )!;
+            );
+
+            if (!mock) {
+              return { errors: [] };
+            }
 
             const finalResponse = {
               body: mock.response,
