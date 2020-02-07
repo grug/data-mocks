@@ -133,17 +133,22 @@ function handleRestMock({
  */
 function handleGraphQLMock({ url, operations }: GraphQLMock) {
   const graphQLErrorResponse = { errors: [] };
-  const findMockGet = u => {
+  const findMockGet = (u: string) => {
     const parsedUrl = new URL(u);
     const operationName = parsedUrl.searchParams.get('operationName');
     return operations.find(o => o.operationName === operationName);
   };
   const findMockPost = postBody => {
+    const jsonBody =
+      typeof postBody === 'string' ? JSON.parse(postBody) : postBody;
     return operations.find(
-      ({ operationName }) => operationName === postBody.operationName
+      ({ operationName }) => operationName === jsonBody.operationName
     );
   };
-  const delayedResponse = (delay, response) => {
+  const delayedResponse = (
+    delay: number | undefined,
+    response: object | string
+  ) => {
     return addDelay(delay ? delay : 0).then(() => response);
   };
 
@@ -168,7 +173,7 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
 
         FetchMock.post(
           url,
-          ({ body }) => {
+          (_, { body }) => {
             const mock = findMockPost(body);
 
             if (!mock) {
@@ -191,7 +196,7 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
       case 'mutation':
         FetchMock.post(
           url,
-          ({ body }) => {
+          (_, { body }) => {
             const mock = findMockPost(body);
 
             if (!mock) {
