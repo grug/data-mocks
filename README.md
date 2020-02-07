@@ -253,3 +253,4 @@ Union type of [`HttpMock`](#HttpMock) and [`GraphQLMock`](#GraphQLMock).
 ## Gotchas
 
 - GraphQL mocks only work with clients that use Fetch. XHR is currently not supported for this.
+- GraphQL operations must have an operation name.
