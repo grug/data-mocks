@@ -120,15 +120,15 @@ describe('data-mocks', () => {
         },
         {
           url: /bar/,
-          method: 'POST',
-          response: {},
-          responseCode: 200
-        },
-        {
-          url: /bar/,
           method: 'GET',
           response: { some: 'otherResponse' },
           responseCode: 401
+        },
+        {
+          url: /bar/,
+          method: 'POST',
+          response: {},
+          responseCode: 200
         },
         { url: /baz/, method: 'POST', response: {}, responseCode: 200 }
       ]);

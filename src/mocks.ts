@@ -1,7 +1,14 @@
 import * as FetchMock from 'fetch-mock/src/client';
 import XHRMock, { delay as xhrMockDelay, proxy } from 'xhr-mock';
 import { parse } from 'query-string';
-import { Scenarios, MockConfig, Mock, HttpMock, GraphQLMock } from './types';
+import {
+  Scenarios,
+  MockConfig,
+  Mock,
+  HttpMock,
+  GraphQLMock,
+  Operation
+} from './types';
 
 /**
  * Gets the corresponding value for `scenario` key in the browser's Location object.
@@ -69,14 +76,54 @@ export const reduceAllMocksForScenario = (
     throw new Error(`No mocks found for scenario '${scenario}'`);
   }
 
-  return defaultMocks
-    .filter(
-      d =>
-        !scenarioMocks.find(
-          s => s.url.toString() === d.url.toString() && d.method === s.method
-        )
-    )
-    .concat(scenarioMocks);
+  const mocks = defaultMocks.concat(scenarioMocks);
+
+  const initialHttpMocks = mocks.filter(
+    ({ method }) => method !== 'GRAPHQL'
+  ) as HttpMock[];
+  const initialGraphQlMocks = mocks.filter(
+    ({ method }) => method === 'GRAPHQL'
+  ) as GraphQLMock[];
+
+  const httpMocksByUrlAndMethod = initialHttpMocks.reduce<
+    Record<string, HttpMock>
+  >((result, mock) => {
+    const { url, method } = mock;
+    // Always take the latest mock
+    result[`${url.toString()}${method}`] = mock;
+
+    return result;
+  }, {});
+  const httpMocks = Object.values(httpMocksByUrlAndMethod);
+
+  const graphQlMocksByUrlAndOperations = initialGraphQlMocks.reduce<
+    Record<string, Record<string, Operation>>
+  >((result, mock) => {
+    const { url, operations } = mock;
+
+    const operationsByName: Record<string, Operation> = result[url.toString()]
+      ? result[url.toString()]
+      : {};
+
+    operations.forEach(operation => {
+      // Always take the latest operation
+      operationsByName[operation.operationName] = operation;
+    });
+
+    result[url.toString()] = operationsByName;
+    return result;
+  }, {});
+  const graphQlMocks = Object.entries(graphQlMocksByUrlAndOperations).map(
+    ([url, operationsByName]) => {
+      return {
+        method: 'GRAPHQL',
+        url: RegExp(url.replace(/^\/(.*)\/$/, '$1')),
+        operations: Object.values(operationsByName)
+      };
+    }
+  ) as GraphQLMock[];
+
+  return (httpMocks as any).concat(graphQlMocks);
 };
 
 /**
@@ -152,76 +199,43 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
     return addDelay(delay ? delay : 0).then(() => response);
   };
 
-  operations.forEach(({ type }) => {
-    switch (type) {
-      case 'query':
-        FetchMock.get(url, u => {
-          const mock = findMockGet(u);
+  FetchMock.get(url, u => {
+    const mock = findMockGet(u);
 
-          if (!mock) {
-            return graphQLErrorResponse;
-          }
-
-          const finalResponse = {
-            body: mock.response,
-            status: mock.responseCode,
-            headers: mock.responseHeaders
-          };
-
-          return delayedResponse(mock.delay, finalResponse);
-        });
-
-        FetchMock.post(
-          url,
-          (_, { body }) => {
-            const mock = findMockPost(body);
-
-            if (!mock) {
-              return graphQLErrorResponse;
-            }
-
-            const finalResponse = {
-              body: mock.response,
-              status: mock.responseCode,
-              headers: mock.responseHeaders
-            };
-
-            return delayedResponse(mock.delay, finalResponse);
-          },
-          {
-            overwriteRoutes: false
-          }
-        );
-        break;
-      case 'mutation':
-        FetchMock.post(
-          url,
-          (_, { body }) => {
-            const mock = findMockPost(body);
-
-            if (!mock) {
-              return { errors: [] };
-            }
-
-            const finalResponse = {
-              body: mock.response,
-              status: mock.responseCode,
-              headers: mock.responseHeaders
-            };
-
-            return delayedResponse(mock.delay, finalResponse);
-          },
-          {
-            overwriteRoutes: false
-          }
-        );
-        break;
-      default:
-        throw new Error(
-          `Unrecognised GraphQL operation ${type} - please check your mock configuration`
-        );
+    if (!mock) {
+      return graphQLErrorResponse;
     }
+
+    const finalResponse = {
+      body: mock.response,
+      status: mock.responseCode,
+      headers: mock.responseHeaders
+    };
+
+    return delayedResponse(mock.delay, finalResponse);
   });
+
+  FetchMock.post(
+    url,
+    (_, { body }) => {
+      const mock = findMockPost(body);
+
+      if (!mock) {
+        return graphQLErrorResponse;
+      }
+
+      const finalResponse = {
+        body: mock.response,
+        status: mock.responseCode,
+        headers: mock.responseHeaders
+      };
+
+      return delayedResponse(mock.delay, finalResponse);
+    },
+    {
+      overwriteRoutes: false
+    }
+  );
 }
 
 /**
