@@ -101,16 +101,20 @@ export const reduceAllMocksForScenario = (
   >((result, mock) => {
     const { url, operations } = mock;
 
-    const operationsByName: Record<string, Operation> = result[url.toString()]
+    const operationsByNameAndType: Record<string, Operation> = result[
+      url.toString()
+    ]
       ? result[url.toString()]
       : {};
 
     operations.forEach(operation => {
       // Always take the latest operation
-      operationsByName[operation.operationName] = operation;
+      operationsByNameAndType[
+        `${operation.operationName}${operation.type}`
+      ] = operation;
     });
 
-    result[url.toString()] = operationsByName;
+    result[url.toString()] = operationsByNameAndType;
     return result;
   }, {});
   const graphQlMocks = Object.entries(graphQlMocksByUrlAndOperations).map(
