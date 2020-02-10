@@ -178,7 +178,7 @@ const mocks: Scenarios = {
 injectMocks(scenarios, extractScenarioFromLocation(window.location));
 
 const Component = () => {
-  const [result] = useQuery({ query: Query }); // result will be data: { test: 'test' }
+  const [result] = useQuery({ query: Query }); // result will be { data: { test: 'test' } }
 
   return <>{result.data.test}</>;
 };
