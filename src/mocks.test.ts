@@ -1,12 +1,10 @@
 import axios from 'axios';
 import {
   injectMocks,
-  HttpMethod,
-  Scenarios,
-  MockConfig,
   extractScenarioFromLocation,
   reduceAllMocksForScenario
 } from './mocks';
+import { HttpMethod, Scenarios, MockConfig } from './types';
 import XHRMock, { proxy } from 'xhr-mock';
 import * as FetchMock from 'fetch-mock/src/client';
 
@@ -122,15 +120,15 @@ describe('data-mocks', () => {
         },
         {
           url: /bar/,
-          method: 'POST',
-          response: {},
-          responseCode: 200
-        },
-        {
-          url: /bar/,
           method: 'GET',
           response: { some: 'otherResponse' },
           responseCode: 401
+        },
+        {
+          url: /bar/,
+          method: 'POST',
+          response: {},
+          responseCode: 200
         },
         { url: /baz/, method: 'POST', response: {}, responseCode: 200 }
       ]);
