@@ -35,6 +35,10 @@ export const injectMocks = (
     FetchMock.config.fallbackToNetwork = true;
   }
 
+  if (config && config.disableConsoleWarningsForFetch) {
+    FetchMock.config.warnOnFallback = false;
+  }
+
   const mocks: Mock[] =
     scenario !== 'default'
       ? reduceAllMocksForScenario(scenarios, scenario)

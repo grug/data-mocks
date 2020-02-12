@@ -3,6 +3,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 export type MockConfig = {
   allowXHRPassthrough?: boolean;
   allowFetchPassthrough?: boolean;
+  disableConsoleWarningsForFetch?: boolean;
 };
 
 export type HttpMock = {
