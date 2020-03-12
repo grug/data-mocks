@@ -3,10 +3,10 @@
   "version": "3.1.0",
   "main": "dist/mocks.js",
   "types": "dist/mocks.d.ts",
-  "repository": "git@github.com:ovotech/data-mocks.git",
-  "author": "Dave Cooper <dave.cooper@ovoenergy.com>",
+  "repository": "git@github.com:grug/data-mocks.git",
+  "author": "Dave Cooper <dave@davecooper.org>",
   "license": "MIT",
-  "homepage": "https://github.com/ovotech/data-mocks",
+  "homepage": "https://github.com/grug/data-mocks",
   "scripts": {
     "clean": "rm -rf dist/",
     "prepublishOnly": "yarn build",

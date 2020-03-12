@@ -1,13 +1,13 @@
-[![npm version](https://badge.fury.io/js/data-mocks.svg)](https://badge.fury.io/js/data-mocks) [![GitHub license](https://img.shields.io/github/license/ovotech/data-mocks.svg)](https://github.com/ovotech/data-mocks)
-![npm](https://img.shields.io/npm/dm/data-mocks.svg)
-
 # data-mocks
+
+[![npm version](https://badge.fury.io/js/data-mocks.svg)](https://badge.fury.io/js/data-mocks) [![GitHub license](https://img.shields.io/github/license/ovotech/data-mocks.svg)](https://github.com/grug/data-mocks)
+![npm](https://img.shields.io/npm/dm/data-mocks.svg)
 
 <img src="https://i.imgur.com/gEG3io2.jpg" height="250">
 
 Library (written in TypeScript) to mock REST and GraphQL requests
 
-# Why is this library useful?
+## Why is this library useful
 
 When developing web applications locally, it is not uncommon to request data from an API. However, the API might not actually exist yet, or we might want to control what the responses are.
 
@@ -15,7 +15,7 @@ Typically, this sort of problem has been solved by either writing a separate moc
 
 This library aims to allow rapid local development without the dependency of a database or fully implemented APIs.
 
-# Setup
+## Setup
 
 - Either `npm install data-mocks` or `yarn add data-mocks`
 - Optional: extract the scenario from URL using the imported `extractScenarioFromLocation()` function
@@ -25,13 +25,13 @@ This library aims to allow rapid local development without the dependency of a d
 - Pass array of `Scenario`'s to `injectMocks()`
 - Hooray, all HTTP requests to mocked endpoints will now respond with the mocked data you have specified
 
-# REST + GraphQL
+## REST + GraphQL
 
 `data-mocks` works with either REST or GraphQL requests. It is also possible to easily mock both in the same application.
 
 See the examples below to see how this is done.
 
-# Examples
+## Examples
 
 ## Basic mock injection without scenarios
 
@@ -204,11 +204,11 @@ const Component = () => {
 
 ### GraphQLMock
 
-| Property   | Type             | Required | Description                                               |
-| ---------- | ---------------- | -------- | --------------------------------------------------------- |
-| url        | RegExp           | ✅       | Regular expression that matches part of the URL.          |
-| method     | string           | ✅       | Must be 'GRAPHQL' to specify that this is a GraphQL mock. |
-| operations | Array<Operation> | ✅       | Array of GraphQL operations for this request.             |
+| Property   | Type               | Required | Description                                               |
+| ---------- | ------------------ | -------- | --------------------------------------------------------- |
+| url        | RegExp             | ✅       | Regular expression that matches part of the URL.          |
+| method     | string             | ✅       | Must be 'GRAPHQL' to specify that this is a GraphQL mock. |
+| operations | Array\<Operation\> | ✅       | Array of GraphQL operations for this request.             |
 
 ### Mock
 
