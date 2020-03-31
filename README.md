@@ -152,7 +152,7 @@ import React from 'react';
 import { injectMocks, extractScenarioFromLocation } from 'data-mocks';
 import gql from 'graphql-tag';
 
-const mocks: Scenarios = {
+const mocks = {
   default: [
     {
       url: /graphql/,
@@ -173,7 +173,7 @@ const mocks: Scenarios = {
   ]
 };
 
-injectMocks(scenarios, extractScenarioFromLocation(window.location));
+injectMocks(mocks, extractScenarioFromLocation(window.location));
 
 const Component = () => {
   const [result] = useQuery({ query: Query }); // result will be { data: { test: 'test' } }
