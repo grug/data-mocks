@@ -1,3 +1,4 @@
+import 'isomorphic-fetch';
 import axios from 'axios';
 import {
   injectMocks,
@@ -6,7 +7,7 @@ import {
 } from './mocks';
 import { HttpMethod, Scenarios, MockConfig } from './types';
 import XHRMock, { proxy } from 'xhr-mock';
-import * as FetchMock from 'fetch-mock/src/client';
+import fetchMock from 'fetch-mock';
 
 describe('data-mocks', () => {
   describe('HTTP methods', () => {
@@ -30,7 +31,7 @@ describe('data-mocks', () => {
         ]
       };
       test(`Mocks calls for ${httpMethod}`, () => {
-        const spy = jest.spyOn(FetchMock, httpMethod.toLowerCase() as any);
+        const spy = jest.spyOn(fetchMock, httpMethod.toLowerCase() as any);
         const xhrSpy = jest.spyOn(XHRMock, httpMethod.toLowerCase() as any);
 
         injectMocks(scenarios, 'default');
@@ -283,13 +284,13 @@ describe('data-mocks', () => {
         allowFetchPassthrough: false
       };
       injectMocks(scenarios, 'default', mockConfig);
-      expect(FetchMock.config.fallbackToNetwork).toBe(false);
+      expect(fetchMock.config.fallbackToNetwork).toBe(false);
     });
 
     test('Sets fallbackToNetwork to false if allowFetchPassthrough is not passed in', () => {
       const mockConfig: MockConfig = {};
       injectMocks(scenarios, 'default', mockConfig);
-      expect(FetchMock.config.fallbackToNetwork).toBe(false);
+      expect(fetchMock.config.fallbackToNetwork).toBe(false);
     });
 
     test('Sets fallbackToNetwork to true if allowFetchPassthrough is set to true in config', () => {
@@ -297,7 +298,7 @@ describe('data-mocks', () => {
         allowFetchPassthrough: true
       };
       injectMocks(scenarios, 'default', mockConfig);
-      expect(FetchMock.config.fallbackToNetwork).toBe(true);
+      expect(fetchMock.config.fallbackToNetwork).toBe(true);
     });
 
     test('Returns mock data if allowXHRPassthrough is set to true and route exists as mock', async () => {

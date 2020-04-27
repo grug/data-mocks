@@ -1,4 +1,4 @@
-import * as FetchMock from 'fetch-mock/src/client';
+import fetchMock from 'fetch-mock';
 import XHRMock, { delay as xhrMockDelay, proxy } from 'xhr-mock';
 import { parse } from 'query-string';
 import {
@@ -32,11 +32,11 @@ export const injectMocks = (
   XHRMock.setup();
 
   if (config && config.allowFetchPassthrough) {
-    FetchMock.config.fallbackToNetwork = true;
+    fetchMock.config.fallbackToNetwork = true;
   }
 
   if (config && config.disableConsoleWarningsForFetch) {
-    FetchMock.config.warnOnFallback = false;
+    fetchMock.config.warnOnFallback = false;
   }
 
   const mocks: Mock[] =
@@ -153,25 +153,25 @@ function handleRestMock({
 
   switch (method) {
     case 'GET':
-      FetchMock.get(url, () => addDelay(delay).then(() => finalResponse), {
+      fetchMock.get(url, () => addDelay(delay).then(() => finalResponse), {
         overwriteRoutes: false
       });
       XHRMock.get(url, xhrMockDelay(finalResponse, delay));
       break;
     case 'POST':
-      FetchMock.post(url, () => addDelay(delay).then(() => finalResponse), {
+      fetchMock.post(url, () => addDelay(delay).then(() => finalResponse), {
         overwriteRoutes: false
       });
       XHRMock.post(url, xhrMockDelay(finalResponse, delay));
       break;
     case 'PUT':
-      FetchMock.put(url, () => addDelay(delay).then(() => finalResponse), {
+      fetchMock.put(url, () => addDelay(delay).then(() => finalResponse), {
         overwriteRoutes: false
       });
       XHRMock.put(url, xhrMockDelay(finalResponse, delay));
       break;
     case 'DELETE':
-      FetchMock.delete(url, () => addDelay(delay).then(() => finalResponse), {
+      fetchMock.delete(url, () => addDelay(delay).then(() => finalResponse), {
         overwriteRoutes: false
       });
       XHRMock.delete(url, xhrMockDelay(finalResponse, delay));
@@ -207,7 +207,7 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
     return addDelay(delay ? delay : 0).then(() => response);
   };
 
-  FetchMock.get(url, u => {
+  fetchMock.get(url, u => {
     const mock = findMockGet(u);
 
     if (!mock || (mock && mock.type === 'mutation')) {
@@ -223,7 +223,7 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
     return delayedResponse(mock.delay, finalResponse);
   });
 
-  FetchMock.post(
+  fetchMock.post(
     url,
     (_, { body }) => {
       const mock = findMockPost(body);
