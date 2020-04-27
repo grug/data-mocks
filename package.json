@@ -8,7 +8,7 @@
   "license": "MIT",
   "homepage": "https://github.com/grug/data-mocks",
   "scripts": {
-    "clean": "rm -rf dist/",
+    "clean": "rimraf dist",
     "prepublishOnly": "yarn build",
     "build": "yarn clean && tsc && babel dist/mocks.js --out-file dist/mocks.js && uglifyjs dist/mocks.js -mco dist/mocks.js",
     "test": "jest",
@@ -38,6 +38,7 @@
     "jest": "^25.4.0",
     "prettier": "1.14.3",
     "pretty-quick": "^1.7.0",
+    "rimraf": "^3.0.2",
     "ts-jest": "^25.4.0",
     "typescript": "^3.8.3",
     "uglify-js": "^3.4.9"
