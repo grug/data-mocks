@@ -30,15 +30,16 @@ describe('data-mocks', () => {
           }
         ]
       };
+
       test(`Mocks calls for ${httpMethod}`, () => {
-        const spy = jest.spyOn(fetchMock, httpMethod.toLowerCase() as any);
+        const fetchSpy = jest.spyOn(fetchMock, httpMethod.toLowerCase() as any);
         const xhrSpy = jest.spyOn(XHRMock, httpMethod.toLowerCase() as any);
 
         injectMocks(scenarios, 'default');
 
-        expect(spy).toHaveBeenCalledTimes(2);
-        expect(spy.mock.calls[0][0]).toEqual(/foo/);
-        expect(spy.mock.calls[1][0]).toEqual(/bar/);
+        expect(fetchSpy).toHaveBeenCalledTimes(2);
+        expect(fetchSpy.mock.calls[0][0]).toEqual(/foo/);
+        expect(fetchSpy.mock.calls[1][0]).toEqual(/bar/);
 
         expect(xhrSpy).toHaveBeenCalledTimes(2);
         expect(xhrSpy.mock.calls[0][0]).toEqual(/foo/);
