@@ -7,6 +7,32 @@
 
 Library (written in TypeScript) to mock REST and GraphQL requests
 
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [data-mocks](#data-mocks)
+  - [Why is this library useful](#why-is-this-library-useful)
+  - [Setup](#setup)
+  - [REST + GraphQL](#rest-graphql)
+  - [Examples](#examples)
+    - [Basic mock injection without scenarios](#basic-mock-injection-without-scenarios)
+    - [Mock injection with scenarios](#mock-injection-with-scenarios)
+    - [Basic GraphQL mock injection (Fetch)](#basic-graphql-mock-injection-fetch)
+  - [Exported types](#exported-types)
+    - [Scenarios](#scenarios)
+    - [HttpMock](#httpmock)
+    - [GraphQLMock](#graphqlmock)
+    - [Mock](#mock)
+    - [Operation](#operation)
+    - [MockConfig](#mockconfig)
+  - [Exported functions](#exported-functions)
+    - [injectMocks](#injectmocks)
+    - [extractScenarioFromLocation](#extractscenariofromlocation)
+  - [Gotchas](#gotchas)
+
+<!-- /code_chunk_output -->
+
 ## Why is this library useful
 
 When developing web applications locally, it is not uncommon to request data from an API. However, the API might not actually exist yet, or we might want to control what the responses are.
@@ -33,7 +59,7 @@ See the examples below to see how this is done.
 
 ## Examples
 
-## Basic mock injection without scenarios
+### Basic mock injection without scenarios
 
 ```javascript
 import { injectMocks } from 'data-mocks';
@@ -45,40 +71,42 @@ const scenarios = {
       url: /login/,
       method: 'POST',
       response: { some: 'good response' },
-      responseCode: 200
+      responseCode: 200,
     },
     {
       url: /some-other-endpoint/,
       method: 'GET',
       response: { another: 'response' },
       responseCode: 200,
-      delay: 1000
+      delay: 1000,
     },
     {
       url: /endpoint-with-headers/,
       method: 'GET',
       response: { same: 'response' },
       responseHeaders: { token: 'mock-token' },
-      responseCode: 200
-    }
-  ]
+      responseCode: 200,
+    },
+  ],
 };
 
 injectMocks(scenarios);
 
 fetch('http://foo.com/login', { method: 'POST', body: {} })
-  .then(response => response.json())
-  .then(myJson => console.log(myJson)); // resolves with { some: 'good response' } after a 200ms delay
+  .then((response) => response.json())
+  .then((myJson) => console.log(myJson)); // resolves with { some: 'good response' } after a 200ms delay
 
 fetch('http://foo.com/some-other-endpoint')
-  .then(response => response.json())
-  .then(myJson => console.log(myJson)); // resolves with { another: 'response' } after a 1 second delay
+  .then((response) => response.json())
+  .then((myJson) => console.log(myJson)); // resolves with { another: 'response' } after a 1 second delay
 
-axios.post('http://foo.com/login', {}).then(response => console.log(response)); // resolves with { another: 'response' } after a 200ms delay
+axios
+  .post('http://foo.com/login', {})
+  .then((response) => console.log(response)); // resolves with { another: 'response' } after a 200ms delay
 
 axios
   .get('http://foo.com/some-other-endpoint')
-  .then(response => console.log(response)); // resolves with { another: 'response' } after a 1 second delay
+  .then((response) => console.log(response)); // resolves with { another: 'response' } after a 1 second delay
 ```
 
 In this example, we define a default scenario in our `scenarios` map. The Scenario objects are described by the [Scenario interface](#scenario). We then inject the scenarios into our application via the [injectMocks() function](#injectMocks). Finally, when we use fetch / XHR to make a request to endpoints that match our scenario objects, the mocked responses are returned.
@@ -90,7 +118,7 @@ In the above example we are using `axios` as our XHR library of choice. However
 
 ---
 
-## Mock injection with scenarios
+### Mock injection with scenarios
 
 ```javascript
 import { injectMocks, extractScenarioFromLocation } from 'data-mocks';
@@ -102,46 +130,48 @@ const scenarios = {
       url: /login/,
       method: 'POST',
       response: { some: 'good response' },
-      responseCode: 200
+      responseCode: 200,
     },
     {
       url: /some-other-endpoint/,
       method: 'GET',
       response: { another: 'response' },
       responseCode: 200,
-      delay: 1000
-    }
+      delay: 1000,
+    },
   ],
   failedLogin: [
     {
       url: /login/,
       method: 'POST',
       response: { some: 'bad things happened' },
-      responseCode: 401
-    }
-  ]
+      responseCode: 401,
+    },
+  ],
 };
 
 injectMocks(scenarios, 'failedLogin');
 
-fetch('http://foo.com/login', { method: 'POST', body: {} }).then(response =>
+fetch('http://foo.com/login', { method: 'POST', body: {} }).then((response) =>
   console.log(response)
 ); // resolves with a 401 after a 200ms delay
 
-fetch('http://foo.com/some-other-endpoint').then(response =>
+fetch('http://foo.com/some-other-endpoint').then((response) =>
   console.log(response)
 ); // resolves with { another: 'response' } after a 1 second delay
 
-axios.post('http://foo.com/login', {}).then(response => console.log(response)); // resolves with a 401 after a 200ms delay
+axios
+  .post('http://foo.com/login', {})
+  .then((response) => console.log(response)); // resolves with a 401 after a 200ms delay
 
 axios
   .get('http://foo.com/some-other-endpoint')
-  .then(response => console.log(response)); // resolves with { another: 'response' } after a 1 second delay
+  .then((response) => console.log(response)); // resolves with { another: 'response' } after a 1 second delay
 ```
 
 In this example, if we load our site up with `?scenario=failedLogin` in the querystring and then attempt to hit the `login` endpoint, it will fail with a 401. However, the `some-other-endpoint` endpoint will still respond with the response in the `default` scenario as we have not provided one in the `failedLogin` scenario.
 
-## Basic GraphQL mock injection (Fetch)
+### Basic GraphQL mock injection (Fetch)
 
 Here, we have a React application using `urql` as a GraphQL client. This shows how GraphQL queries work and it can be assumed that if you want to use REST mocks in this application, you can do so as you normally would (see examples above).
 
@@ -161,16 +191,16 @@ const mocks = {
         {
           operationName: 'Query',
           type: 'query',
-          response: { data: { test: 'test' } }
+          response: { data: { test: 'test' } },
         },
         {
           operationName: 'Mutation',
           type: 'mutation',
-          response: { data: { test: 'test' } }
-        }
-      ]
-    }
-  ]
+          response: { data: { test: 'test' } },
+        },
+      ],
+    },
+  ],
 };
 
 injectMocks(mocks, extractScenarioFromLocation(window.location));
