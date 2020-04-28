@@ -1,4 +1,4 @@
-import * as FetchMock from 'fetch-mock/src/client';
+import fetchMock from 'fetch-mock';
 import XHRMock, { delay as xhrMockDelay, proxy } from 'xhr-mock';
 import { parse } from 'query-string';
 import {
@@ -7,7 +7,7 @@ import {
   Mock,
   HttpMock,
   GraphQLMock,
-  Operation
+  Operation,
 } from './types';
 
 /**
@@ -31,13 +31,9 @@ export const injectMocks = (
 ): void => {
   XHRMock.setup();
 
-  if (config && config.allowFetchPassthrough) {
-    FetchMock.config.fallbackToNetwork = true;
-  }
-
-  if (config && config.disableConsoleWarningsForFetch) {
-    FetchMock.config.warnOnFallback = false;
-  }
+  fetchMock.config.fallbackToNetwork = config?.allowFetchPassthrough ?? false;
+  fetchMock.config.warnOnFallback =
+    config?.disableConsoleWarningsForFetch ?? true;
 
   const mocks: Mock[] =
     scenario !== 'default'
@@ -48,15 +44,15 @@ export const injectMocks = (
     throw new Error('Unable to instantiate mocks');
   }
 
-  const restMocks = mocks.filter(m => m.method !== 'GRAPHQL') as HttpMock[];
+  const restMocks = mocks.filter((m) => m.method !== 'GRAPHQL') as HttpMock[];
   const graphQLMocks = mocks.filter(
-    m => m.method === 'GRAPHQL'
+    (m) => m.method === 'GRAPHQL'
   ) as GraphQLMock[];
 
   restMocks.forEach(handleRestMock);
   graphQLMocks.forEach(handleGraphQLMock);
 
-  if (config && config.allowXHRPassthrough) {
+  if (config?.allowXHRPassthrough) {
     XHRMock.use(proxy);
   }
 };
@@ -111,7 +107,7 @@ export const reduceAllMocksForScenario = (
       ? result[url.toString()]
       : {};
 
-    operations.forEach(operation => {
+    operations.forEach((operation) => {
       // Always take the latest operation
       operationsByNameAndType[
         `${operation.operationName}${operation.type}`
@@ -126,7 +122,7 @@ export const reduceAllMocksForScenario = (
       return {
         method: 'GRAPHQL',
         url: RegExp(url.replace(/^\/(.*)\/$/, '$1')),
-        operations: Object.values(operationsByName)
+        operations: Object.values(operationsByName),
       };
     }
   ) as GraphQLMock[];
@@ -143,36 +139,36 @@ function handleRestMock({
   response,
   responseCode = 200,
   responseHeaders,
-  delay = 0
+  delay = 0,
 }: HttpMock) {
   const finalResponse = {
     body: response,
     status: responseCode,
-    headers: responseHeaders
+    headers: responseHeaders,
   };
 
   switch (method) {
     case 'GET':
-      FetchMock.get(url, () => addDelay(delay).then(() => finalResponse), {
-        overwriteRoutes: false
+      fetchMock.get(url, () => addDelay(delay).then(() => finalResponse), {
+        overwriteRoutes: false,
       });
       XHRMock.get(url, xhrMockDelay(finalResponse, delay));
       break;
     case 'POST':
-      FetchMock.post(url, () => addDelay(delay).then(() => finalResponse), {
-        overwriteRoutes: false
+      fetchMock.post(url, () => addDelay(delay).then(() => finalResponse), {
+        overwriteRoutes: false,
       });
       XHRMock.post(url, xhrMockDelay(finalResponse, delay));
       break;
     case 'PUT':
-      FetchMock.put(url, () => addDelay(delay).then(() => finalResponse), {
-        overwriteRoutes: false
+      fetchMock.put(url, () => addDelay(delay).then(() => finalResponse), {
+        overwriteRoutes: false,
       });
       XHRMock.put(url, xhrMockDelay(finalResponse, delay));
       break;
     case 'DELETE':
-      FetchMock.delete(url, () => addDelay(delay).then(() => finalResponse), {
-        overwriteRoutes: false
+      fetchMock.delete(url, () => addDelay(delay).then(() => finalResponse), {
+        overwriteRoutes: false,
       });
       XHRMock.delete(url, xhrMockDelay(finalResponse, delay));
       break;
@@ -191,9 +187,9 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
   const findMockGet = (u: string) => {
     const parsedUrl = new URL(u);
     const operationName = parsedUrl.searchParams.get('operationName');
-    return operations.find(o => o.operationName === operationName);
+    return operations.find((o) => o.operationName === operationName);
   };
-  const findMockPost = postBody => {
+  const findMockPost = (postBody) => {
     const jsonBody =
       typeof postBody === 'string' ? JSON.parse(postBody) : postBody;
     return operations.find(
@@ -207,23 +203,23 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
     return addDelay(delay ? delay : 0).then(() => response);
   };
 
-  FetchMock.get(url, u => {
+  fetchMock.get(url, (u) => {
     const mock = findMockGet(u);
 
-    if (!mock || (mock && mock.type === 'mutation')) {
+    if (!mock || mock?.type === 'mutation') {
       return graphQLErrorResponse;
     }
 
     const finalResponse = {
       body: mock.response,
       status: mock.responseCode,
-      headers: mock.responseHeaders
+      headers: mock.responseHeaders,
     };
 
     return delayedResponse(mock.delay, finalResponse);
   });
 
-  FetchMock.post(
+  fetchMock.post(
     url,
     (_, { body }) => {
       const mock = findMockPost(body);
@@ -235,13 +231,13 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
       const finalResponse = {
         body: mock.response,
         status: mock.responseCode,
-        headers: mock.responseHeaders
+        headers: mock.responseHeaders,
       };
 
       return delayedResponse(mock.delay, finalResponse);
     },
     {
-      overwriteRoutes: false
+      overwriteRoutes: false,
     }
   );
 }
@@ -249,4 +245,5 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
 /**
  * Adds delay (in ms) before resolving a promise.
  */
-const addDelay = (delay: number) => new Promise(res => setTimeout(res, delay));
+const addDelay = (delay: number) =>
+  new Promise((res) => setTimeout(res, delay));

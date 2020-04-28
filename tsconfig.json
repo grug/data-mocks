@@ -9,7 +9,8 @@
     "noImplicitAny": false /* Raise error on expressions and declarations with an implied 'any' type. */,
     "noUnusedLocals": true /* Report errors on unused locals. */,
     "noUnusedParameters": true /* Report errors on unused parameters. */,
-    "lib": ["es2017", "dom"]
+    "lib": ["es2017", "dom"],
+    "esModuleInterop": true
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "src/**/*.test.ts"]
