@@ -31,13 +31,9 @@ export const injectMocks = (
 ): void => {
   XHRMock.setup();
 
-  if (config?.allowFetchPassthrough) {
-    fetchMock.config.fallbackToNetwork = true;
-  }
-
-  if (config?.disableConsoleWarningsForFetch) {
-    fetchMock.config.warnOnFallback = false;
-  }
+  fetchMock.config.fallbackToNetwork = config?.allowFetchPassthrough ?? false;
+  fetchMock.config.warnOnFallback =
+    config?.disableConsoleWarningsForFetch ?? false;
 
   const mocks: Mock[] =
     scenario !== 'default'
