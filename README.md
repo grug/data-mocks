@@ -13,6 +13,10 @@ Library (written in TypeScript) to mock REST and GraphQL requests
 
 - [Why is this library useful](#why-is-this-library-useful)
 - [Setup](#setup)
+  - [Integration patterns](#integration-patterns)
+    - [React](#react)
+    - [Angular](#angular)
+    - [No framework (just vanilla JS)](#no-framework-just-vanilla-js)
 - [REST + GraphQL](#rest-graphql)
 - [Examples](#examples)
   - [Basic mock injection without scenarios](#basic-mock-injection-without-scenarios)
@@ -49,6 +53,95 @@ This library aims to allow rapid local development without the dependency of a d
 - Create an array of `Scenario`'s you would like to use (see examples)
 - Pass array of `Scenario`'s to `injectMocks()`
 - Hooray, all HTTP requests to mocked endpoints will now respond with the mocked data you have specified
+
+### Integration patterns
+
+Regardless of framework or CLI tool used to generate your project, integrating `data-mocks` into your project is easy. Here are how it may look for you:
+
+#### React
+
+```js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './App';
+
+async function main() {
+  if (process.env.NODE_ENV === 'development') {
+    const { injectMocks, extractScenarioFromLocation } = await import(
+      'data-mocks'
+    );
+
+    // You could just define your mocks inline if you didn't want to import them.
+    const { getMocks } = await import('./path/to/your/mock/definitions');
+
+    injectMocks(getMocks(), extractScenarioFromLocation(window.location));
+  }
+
+  ReactDOM.render(<App />, document.getElementById('root'));
+}
+
+main();
+```
+
+#### Angular
+
+```ts
+import { enableProdMode } from '@angular/core';
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+
+import { AppModule } from './app/app.module';
+import { environment } from './environments/environment';
+
+async function setupMocks() {
+    const { injectMocks, extractScenarioFromLocation } = await import(
+      'data-mocks'
+    );
+    // You could just define your mocks inline if you didn't want to import them.
+    const { getMocks } = await import('./path/to/your/mock/definitions');
+
+    injectMocks(getMocks(), extractScenarioFromLocation(window.location));
+  }
+}
+
+async function main() {
+  if (environment.production) {
+    enableProdMode();
+  }
+
+  if (!environment.production) {
+    await setupMocks();
+  }
+
+  platformBrowserDynamic()
+    .bootstrapModule(AppModule)
+    .catch((err) => console.error(err));
+}
+
+main();
+```
+
+#### No framework (just vanilla JS)
+
+```ts
+async function main() {
+  if (process.env.NODE_ENV === 'development') {
+    const { injectMocks, extractScenarioFromLocation } = await import(
+      'data-mocks'
+    );
+
+    // You could just define your mocks inline if you didn't want to import them.
+    const { getMocks } = await import('./path/to/your/mock/definitions');
+
+    injectMocks(getMocks(), extractScenarioFromLocation(window.location));
+  }
+}
+
+main();
+```
+
+In these examples, we dynamically import `data-mocks` and our mock definitions as to not increase production bundle sizes (given that we will never need/want to use these files in production environments).
+
+It is not a requirement to dynamically import `data-mocks` or your mock definitions - it is just a recommendation :)
 
 ## REST + GraphQL
 
