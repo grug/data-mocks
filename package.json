@@ -24,7 +24,7 @@
   "dependencies": {
     "fetch-mock": "^9.4.0",
     "query-string": "^5.1.1",
-    "xhr-mock": "^2.4.1"
+    "xhr-mock": "^2.5.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.0",
