@@ -10,6 +10,10 @@ import XHRMock, { proxy } from 'xhr-mock';
 import fetchMock from 'fetch-mock';
 
 describe('data-mocks', () => {
+  beforeEach(() => {
+    fetchMock.resetHistory();
+  });
+
   describe('REST', () => {
     describe('HTTP methods', () => {
       const httpMethods: HttpMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];
@@ -94,8 +98,8 @@ describe('data-mocks', () => {
         injectMocks(scenarios, 'default');
       });
 
-      test(`Correct response for mocked XHR endpoints`, async () => {
-        expect(fetchMock.calls().length === 0).toBeTruthy();
+      test(`Correct endpoints being called for mocked fetch endpoints`, async () => {
+        expect(fetchMock.calls().length).toEqual(0);
 
         await fetch('/get-endpoint', { method: 'GET' });
         expect(fetchMock.called(getMatcher)).toBeTruthy();
@@ -165,6 +169,41 @@ describe('data-mocks', () => {
         expect(resDELETE.data).toEqual({ foo: 'DELETE' });
         expect(resDELETE.headers).toEqual({});
       });
+    });
+  });
+
+  describe('GraphQL mocks', async () => {
+    const graphQLMatcher = /graphql/;
+    const scenarios: Scenarios = {
+      default: [
+        {
+          url: /graphql/,
+          method: 'GRAPHQL',
+          operations: [
+            {
+              operationName: 'Query',
+              type: 'query',
+              response: { data: { test: 'test' } },
+            },
+            {
+              operationName: 'Mutation',
+              type: 'mutation',
+              response: { data: { test: 'test' } },
+            },
+          ],
+        },
+      ],
+    };
+
+    beforeAll(() => {
+      injectMocks(scenarios, 'default');
+    });
+
+    test(`Correct endpoints being called for mocked graphQL endpoints`, async () => {
+      expect(fetchMock.calls().length).toEqual(0);
+
+      await fetch('https://www.test.com/graphql', { method: 'GET' });
+      expect(fetchMock.called(graphQLMatcher)).toBeTruthy();
     });
   });
 
