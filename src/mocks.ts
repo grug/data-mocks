@@ -33,7 +33,7 @@ export const injectMocks = (
 
   fetchMock.config.fallbackToNetwork = config?.allowFetchPassthrough ?? false;
   fetchMock.config.warnOnFallback =
-    config?.disableConsoleWarningsForFetch ?? false;
+    config?.disableConsoleWarningsForFetch ?? true;
 
   const mocks: Mock[] =
     scenario !== 'default'
