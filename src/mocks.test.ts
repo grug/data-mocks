@@ -172,7 +172,7 @@ describe('data-mocks', () => {
     });
   });
 
-  describe('GraphQL mocks', async () => {
+  describe('GraphQL mocks', () => {
     const graphQLMatcher = /graphql/;
     const scenarios: Scenarios = {
       default: [
