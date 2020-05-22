@@ -22,7 +22,7 @@
     }
   },
   "dependencies": {
-    "fetch-mock": "^9.4.0",
+    "fetch-mock": "6.5.2",
     "query-string": "^5.1.1",
     "xhr-mock": "^2.5.1"
   },
