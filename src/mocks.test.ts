@@ -11,7 +11,7 @@ import fetchMock from 'fetch-mock';
 
 describe('data-mocks', () => {
   beforeEach(() => {
-    fetchMock.resetHistory();
+    fetchMock.reset();
   });
 
   describe('REST', () => {
