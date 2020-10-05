@@ -16,7 +16,13 @@ describe('data-mocks', () => {
 
   describe('REST', () => {
     describe('HTTP methods', () => {
-      const httpMethods: HttpMethod[] = ['GET', 'POST', 'PUT', 'DELETE'];
+      const httpMethods: HttpMethod[] = [
+        'GET',
+        'POST',
+        'PUT',
+        'PATCH',
+        'DELETE',
+      ];
 
       httpMethods.forEach((httpMethod) => {
         const scenarios: Scenarios = {
@@ -60,6 +66,7 @@ describe('data-mocks', () => {
       const getMatcher = /get-endpoint/;
       const postMatcher = /post-endpoint/;
       const putMatcher = /put-endpoint/;
+      const patchMatcher = /patch-endpoint/;
       const deleteMatcher = /delete-endpoint/;
 
       const scenarios: Scenarios = {
@@ -81,6 +88,13 @@ describe('data-mocks', () => {
           {
             url: putMatcher,
             method: 'PUT',
+            response: {},
+            responseCode: 200,
+            responseHeaders: undefined,
+          },
+          {
+            url: patchMatcher,
+            method: 'PATCH',
             response: {},
             responseCode: 200,
             responseHeaders: undefined,
@@ -109,6 +123,9 @@ describe('data-mocks', () => {
 
         await fetch('/put-endpoint', { method: 'PUT' });
         expect(fetchMock.called(putMatcher)).toBeTruthy();
+
+        await fetch('/patch-endpoint', { method: 'PATCH' });
+        expect(fetchMock.called(patchMatcher)).toBeTruthy();
 
         await fetch('/delete-endpoint', { method: 'DELETE' });
         expect(fetchMock.called(deleteMatcher)).toBeTruthy();
@@ -141,6 +158,13 @@ describe('data-mocks', () => {
           },
           {
             url: /foo/,
+            method: 'PATCH',
+            response: { foo: 'PATCH' },
+            responseCode: 200,
+            responseHeaders: undefined,
+          },
+          {
+            url: /foo/,
             method: 'DELETE',
             response: { foo: 'DELETE' },
             responseCode: 200,
@@ -164,6 +188,10 @@ describe('data-mocks', () => {
         const resPUT = await axios.put('/foo');
         expect(resPUT.data).toEqual({ foo: 'PUT' });
         expect(resPUT.headers).toEqual({});
+
+        const resPATCH = await axios.patch('/foo');
+        expect(resPATCH.data).toEqual({ foo: 'PATCH' });
+        expect(resPATCH.headers).toEqual({});
 
         const resDELETE = await axios.delete('/foo');
         expect(resDELETE.data).toEqual({ foo: 'DELETE' });

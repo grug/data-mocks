@@ -315,14 +315,14 @@ const Component = () => {
 
 ### HttpMock
 
-| Property        | Type             | Required | Description                                                         |
-| --------------- | ---------------- | -------- | ------------------------------------------------------------------- |
-| url             | RegExp           | ✅       | Regular expression that matches part of the URL.                    |
-| method          | string           | ✅       | HTTP method matching one of 'GET', 'POST', 'PUT', 'DELETE'.         |
-| response        | object \| string | ✅       | Body of the response.                                               |
-| responseCode    | number           | ❌       | Response code. Defaults to 200.                                     |
-| responseHeaders | object           | ❌       | Response headers. Defaults to empty.                                |
-| delay           | number           | ❌       | Delay (in milliseconds) before response is returned. Defaults to 0. |
+| Property        | Type             | Required | Description                                                          |
+| --------------- | ---------------- | -------- | -------------------------------------------------------------------- |
+| url             | RegExp           | ✅       | Regular expression that matches part of the URL.                     |
+| method          | string           | ✅       | HTTP method matching one of 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'. |
+| response        | object \| string | ✅       | Body of the response.                                                |
+| responseCode    | number           | ❌       | Response code. Defaults to 200.                                      |
+| responseHeaders | object           | ❌       | Response headers. Defaults to empty.                                 |
+| delay           | number           | ❌       | Delay (in milliseconds) before response is returned. Defaults to 0.  |
 
 ### GraphQLMock
 
