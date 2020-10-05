@@ -166,6 +166,12 @@ function handleRestMock({
       });
       XHRMock.put(url, xhrMockDelay(finalResponse, delay));
       break;
+    case 'PATCH':
+      fetchMock.patch(url, () => addDelay(delay).then(() => finalResponse), {
+        overwriteRoutes: false,
+      });
+      XHRMock.patch(url, xhrMockDelay(finalResponse, delay));
+      break;
     case 'DELETE':
       fetchMock.delete(url, () => addDelay(delay).then(() => finalResponse), {
         overwriteRoutes: false,
