@@ -1,3 +1,9 @@
+export {
+  extractScenarioFromLocation,
+  injectMocks,
+  reduceAllMocksForScenario,
+} from './mocks';
+
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
 export type MockConfig = {

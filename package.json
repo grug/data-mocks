@@ -2,7 +2,7 @@
   "name": "data-mocks",
   "version": "4.0.2",
   "main": "dist/mocks.js",
-  "types": "dist/mocks.d.ts",
+  "types": "dist/types.d.ts",
   "repository": "git@github.com:grug/data-mocks.git",
   "author": "Dave Cooper <dave@davecooper.org>",
   "license": "MIT",
