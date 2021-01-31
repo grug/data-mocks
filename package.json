@@ -1,6 +1,6 @@
 {
   "name": "data-mocks",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "main": "dist/mocks.js",
   "types": "dist/types.d.ts",
   "repository": "git@github.com:grug/data-mocks.git",
