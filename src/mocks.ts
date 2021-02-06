@@ -190,17 +190,12 @@ function handleRestMock({
  */
 function handleGraphQLMock({ url, operations }: GraphQLMock) {
   const graphQLErrorResponse = { errors: [] };
-  const findMockGet = (u: string) => {
-    const parsedUrl = new URL(u);
-    const operationName = parsedUrl.searchParams.get('operationName');
-    return operations.find((o) => o.operationName === operationName);
-  };
-  const findMockPost = (postBody) => {
+  const findOperation = (operationName: string) =>
+    operations.find((o) => o.operationName === operationName);
+  const findOperationPost = (postBody) => {
     const jsonBody =
       typeof postBody === 'string' ? JSON.parse(postBody) : postBody;
-    return operations.find(
-      ({ operationName }) => operationName === jsonBody.operationName
-    );
+    return findOperation(jsonBody.operationName);
   };
   const delayedResponse = (
     delay: number | undefined,
@@ -210,42 +205,77 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
   };
 
   fetchMock.get(url, (u) => {
-    const mock = findMockGet(u);
+    const parsedUrl = new URL(u);
+    const operationName = parsedUrl.searchParams.get('operationName') || '';
+    const operation = findOperation(operationName);
 
-    if (!mock || mock?.type === 'mutation') {
+    if (!operation || operation?.type === 'mutation') {
       return graphQLErrorResponse;
     }
 
     const finalResponse = {
-      body: mock.response,
-      status: mock.responseCode,
-      headers: mock.responseHeaders,
+      body: operation.response,
+      status: operation.responseCode,
+      headers: operation.responseHeaders,
     };
 
-    return delayedResponse(mock.delay, finalResponse);
+    return delayedResponse(operation.delay, finalResponse);
   });
 
   fetchMock.post(
     url,
     (_, { body }) => {
-      const mock = findMockPost(body);
+      const operation = findOperationPost(body);
 
-      if (!mock) {
+      if (!operation) {
         return graphQLErrorResponse;
       }
 
       const finalResponse = {
-        body: mock.response,
-        status: mock.responseCode,
-        headers: mock.responseHeaders,
+        body: operation.response,
+        status: operation.responseCode,
+        headers: operation.responseHeaders,
       };
 
-      return delayedResponse(mock.delay, finalResponse);
+      return delayedResponse(operation.delay, finalResponse);
     },
     {
       overwriteRoutes: false,
     }
   );
+
+  XHRMock.get(url, (req, res) => {
+    const operationName = req.url().query?.operationName || '';
+    const operation = findOperation(operationName);
+
+    if (!operation || operation?.type === 'mutation') {
+      return res.body(graphQLErrorResponse);
+    }
+
+    const { response, responseCode, responseHeaders, delay } = operation;
+    if (responseHeaders) {
+      res.headers(responseHeaders);
+    }
+    return addDelay(delay ? delay : 0).then(() => {
+      return res.status(responseCode ?? 200).body(response);
+    });
+  });
+
+  XHRMock.post(url, (req, res) => {
+    const operation = findOperationPost(req.body());
+
+    if (!operation) {
+      return res.body(graphQLErrorResponse);
+    }
+
+    const { response, responseCode, responseHeaders, delay } = operation;
+    if (responseHeaders) {
+      res.headers(responseHeaders);
+    }
+    return addDelay(delay ? delay : 0).then(() =>
+      res.status(responseCode ?? 200).body(response)
+    );
+  });
 }
 
 /**
