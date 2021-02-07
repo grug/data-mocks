@@ -389,6 +389,38 @@ describe('data-mocks', () => {
       const result = reduceAllMocksForScenario(scenarios, 'scenario');
       expect(result).toEqual([]);
     });
+
+    test(`Preserves any flags defined in the url regex`, () => {
+      const scenarios: Scenarios = {
+        default: [],
+        scenario: [
+          {
+            url: /^\/foo/i,
+            method: 'GET',
+            response: {},
+            responseCode: 200,
+          },
+          {
+            url: /^\/graphql/i,
+            method: 'GRAPHQL',
+            operations: [
+              {
+                operationName: 'Query',
+                type: 'query',
+                response: { data: { test: 'data' } },
+              },
+            ],
+          },
+        ],
+      };
+      expect('/Foo').toMatch(scenarios.scenario[0].url);
+      expect('/GraphQL').toMatch(scenarios.scenario[1].url);
+
+      const result = reduceAllMocksForScenario(scenarios, 'scenario');
+      expect(result).toHaveLength(2);
+      expect('/Foo').toMatch(result[0].url);
+      expect('/GraphQL').toMatch(result[1].url);
+    });
   });
 
   describe('Utility: extractScenarioFromLocation', () => {

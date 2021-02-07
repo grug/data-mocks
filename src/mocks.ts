@@ -97,15 +97,15 @@ export const reduceAllMocksForScenario = (
   const httpMocks = Object.values(httpMocksByUrlAndMethod);
 
   const graphQlMocksByUrlAndOperations = initialGraphQlMocks.reduce<
-    Record<string, Record<string, Operation>>
+    Record<
+      string,
+      { operationsByNameAndType: Record<string, Operation>; url: RegExp }
+    >
   >((result, mock) => {
     const { url, operations } = mock;
 
-    const operationsByNameAndType: Record<string, Operation> = result[
-      url.toString()
-    ]
-      ? result[url.toString()]
-      : {};
+    const operationsByNameAndType: Record<string, Operation> =
+      result[url.toString()]?.operationsByNameAndType ?? {};
 
     operations.forEach((operation) => {
       // Always take the latest operation
@@ -114,15 +114,18 @@ export const reduceAllMocksForScenario = (
       ] = operation;
     });
 
-    result[url.toString()] = operationsByNameAndType;
+    result[url.toString()] = {
+      url,
+      operationsByNameAndType,
+    };
     return result;
   }, {});
-  const graphQlMocks = Object.entries(graphQlMocksByUrlAndOperations).map(
-    ([url, operationsByName]) => {
+  const graphQlMocks = Object.values(graphQlMocksByUrlAndOperations).map(
+    ({ url, operationsByNameAndType }) => {
       return {
         method: 'GRAPHQL',
-        url: RegExp(url.replace(/^\/(.*)\/$/, '$1')),
-        operations: Object.values(operationsByName),
+        url,
+        operations: Object.values(operationsByNameAndType),
       };
     }
   ) as GraphQLMock[];
