@@ -21,7 +21,7 @@ Library (written in TypeScript) to mock REST and GraphQL requests
 - [Examples](#examples)
   - [Basic mock injection without scenarios](#basic-mock-injection-without-scenarios)
   - [Mock injection with scenarios](#mock-injection-with-scenarios)
-  - [Basic GraphQL mock injection (Fetch)](#basic-graphql-mock-injection-fetch)
+  - [Basic GraphQL mock injection](#basic-graphql-mock-injection)
 - [Exported types](#exported-types)
   - [Scenarios](#scenarios)
   - [HttpMock](#httpmock)
@@ -263,7 +263,7 @@ axios
 
 In this example, if we load our site up with `?scenario=failedLogin` in the querystring and then attempt to hit the `login` endpoint, it will fail with a 401. However, the `some-other-endpoint` endpoint will still respond with the response in the `default` scenario as we have not provided one in the `failedLogin` scenario.
 
-### Basic GraphQL mock injection (Fetch)
+### Basic GraphQL mock injection
 
 Here, we have a React application using `urql` as a GraphQL client. This shows how GraphQL queries work and it can be assumed that if you want to use REST mocks in this application, you can do so as you normally would (see examples above).
 
@@ -373,5 +373,4 @@ Union type of [`HttpMock`](#HttpMock) and [`GraphQLMock`](#GraphQLMock).
 
 ## Gotchas
 
-- GraphQL mocks only work with clients that use Fetch. XHR is currently not supported for this.
 - GraphQL operations must have an operation name.
