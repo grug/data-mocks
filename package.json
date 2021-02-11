@@ -4,7 +4,7 @@
   "main": "dist/mocks.js",
   "types": "dist/types.d.ts",
   "repository": "git@github.com:grug/data-mocks.git",
-  "author": "Dave Cooper <dave@davecooper.org>",
+  "author": "Dave Cooper <dave@davecooper.dev>",
   "license": "MIT",
   "homepage": "https://github.com/grug/data-mocks",
   "scripts": {
@@ -48,6 +48,7 @@
     "mocks",
     "testing",
     "rest",
-    "graphql"
+    "graphql",
+    "api"
   ]
 }
