@@ -209,14 +209,16 @@ describe('data-mocks', () => {
           method: 'GRAPHQL',
           operations: [
             {
-              operationName: 'Query',
+              operationName: 'QueryTest',
               type: 'query',
-              response: { data: { test: 'test' } },
+              response: { data: { test: 'query test' } },
+              responseHeaders: { token: 'foo' },
             },
             {
-              operationName: 'Mutation',
+              operationName: 'MutationTest',
               type: 'mutation',
-              response: { data: { test: 'test' } },
+              response: { data: { test: 'mutation test' } },
+              responseHeaders: { token: 'bar' },
             },
           ],
         },
@@ -227,11 +229,55 @@ describe('data-mocks', () => {
       injectMocks(scenarios, 'default');
     });
 
-    test(`Correct endpoints being called for mocked graphQL endpoints`, async () => {
-      expect(fetchMock.calls().length).toEqual(0);
+    describe('Fetch', () => {
+      test(`Correct endpoints being called for mocked graphQL endpoints`, async () => {
+        expect(fetchMock.calls().length).toEqual(0);
 
-      await fetch('https://www.test.com/graphql', { method: 'GET' });
-      expect(fetchMock.called(graphQLMatcher)).toBeTruthy();
+        await fetch('https://www.test.com/graphql', { method: 'GET' });
+        expect(fetchMock.called(graphQLMatcher)).toBeTruthy();
+      });
+
+      test('Correct response when using GET request', async () => {
+        const response = await fetch(
+          'https://www.test.com/graphql?query={}&operationName=QueryTest',
+          { method: 'GET' }
+        );
+        const responseBody = await response.json();
+        expect(responseBody.data).toEqual({ test: 'query test' });
+        expect(response.headers.get('token')).toEqual('foo');
+      });
+
+      test('Correct response when using POST request', async () => {
+        const response = await fetch('https://www.test.com/graphql', {
+          method: 'POST',
+          body: JSON.stringify({ query: '{}', operationName: 'MutationTest' }),
+        });
+        const responseBody = await response.json();
+        expect(responseBody.data).toEqual({ test: 'mutation test' });
+        expect(response.headers.get('token')).toEqual('bar');
+      });
+    });
+
+    describe('XHR', () => {
+      test('Correct response when using GET request', async () => {
+        const { data, headers } = await axios.get(
+          'https://www.test.com/graphql?query={}&operationName=QueryTest'
+        );
+        expect(data.data).toEqual({ test: 'query test' });
+        expect(headers).toEqual({ token: 'foo' });
+      });
+
+      test('Correct response when using POST request', async () => {
+        const { data, headers } = await axios.post(
+          'https://www.test.com/graphql',
+          {
+            query: '{}',
+            operationName: 'MutationTest',
+          }
+        );
+        expect(data.data).toEqual({ test: 'mutation test' });
+        expect(headers).toEqual({ token: 'bar' });
+      });
     });
   });
 
@@ -342,6 +388,38 @@ describe('data-mocks', () => {
       };
       const result = reduceAllMocksForScenario(scenarios, 'scenario');
       expect(result).toEqual([]);
+    });
+
+    test(`Preserves any flags defined in the url regex`, () => {
+      const scenarios: Scenarios = {
+        default: [],
+        scenario: [
+          {
+            url: /^\/foo/i,
+            method: 'GET',
+            response: {},
+            responseCode: 200,
+          },
+          {
+            url: /^\/graphql/i,
+            method: 'GRAPHQL',
+            operations: [
+              {
+                operationName: 'Query',
+                type: 'query',
+                response: { data: { test: 'data' } },
+              },
+            ],
+          },
+        ],
+      };
+      expect('/Foo').toMatch(scenarios.scenario[0].url);
+      expect('/GraphQL').toMatch(scenarios.scenario[1].url);
+
+      const result = reduceAllMocksForScenario(scenarios, 'scenario');
+      expect(result).toHaveLength(2);
+      expect('/Foo').toMatch(result[0].url);
+      expect('/GraphQL').toMatch(result[1].url);
     });
   });
 
