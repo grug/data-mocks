@@ -1,6 +1,6 @@
 # data-mocks
 
-[![npm version](https://badge.fury.io/js/data-mocks.svg)](https://badge.fury.io/js/data-mocks) [![GitHub license](https://img.shields.io/github/license/ovotech/data-mocks.svg)](https://github.com/grug/data-mocks)
+[![GitHub license](https://img.shields.io/github/license/ovotech/data-mocks.svg)](https://github.com/grug/data-mocks)
 ![npm](https://img.shields.io/npm/dm/data-mocks.svg)
 
 <img src="https://i.imgur.com/gEG3io2.jpg" height="250">
