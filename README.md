@@ -100,7 +100,6 @@ async function setupMocks() {
     const { getMocks } = await import('./path/to/your/mock/definitions');
 
     injectMocks(getMocks(), extractScenarioFromLocation(window.location));
-  }
 }
 
 async function main() {
