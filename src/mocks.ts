@@ -188,8 +188,7 @@ function handleRestMock({
   }
 }
 
-/**
- * Mocks the right HTTP method for a GraphQL mock.
+/**  const graphQLMocks = mocks.filter(ethod for a GraphQL mock.
  */
 function handleGraphQLMock({ url, operations }: GraphQLMock) {
   const graphQLErrorResponse = { errors: [] };

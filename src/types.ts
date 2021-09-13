@@ -3,6 +3,7 @@ export {
   injectMocks,
   reduceAllMocksForScenario,
 } from './mocks';
+import { Server as MockServer } from 'mock-socket';
 
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
@@ -27,6 +28,13 @@ export type GraphQLMock = {
   operations: Array<Operation>;
 };
 
+export type WebSocketServerMock = (mockServer: MockServer) => () => MockServer;
+export type WebSocketMock = {
+  url: RegExp;
+  method: 'WEBSOCKET';
+  server: WebSocketServerMock;
+};
+
 export type Operation = {
   type: 'query' | 'mutation';
   operationName: string;
@@ -36,7 +44,7 @@ export type Operation = {
   delay?: number;
 };
 
-export type Mock = HttpMock | GraphQLMock;
+export type Mock = HttpMock | GraphQLMock | WebSocketMock;
 
 export type Scenarios = {
   default: Mock[];
