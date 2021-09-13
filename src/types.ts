@@ -28,7 +28,7 @@ export type GraphQLMock = {
   operations: Array<Operation>;
 };
 
-export type WebSocketServerMock = (mockServer: MockServer) => () => MockServer;
+export type WebSocketServerMock = (mockServer: MockServer) => void;
 export type WebSocketMock = {
   url: RegExp;
   method: 'WEBSOCKET';

@@ -8,6 +8,7 @@ import {
   HttpMock,
   GraphQLMock,
   Operation,
+  WebSocketMock,
 } from './types';
 
 /**
@@ -44,10 +45,16 @@ export const injectMocks = (
     throw new Error('Unable to instantiate mocks');
   }
 
-  const restMocks = mocks.filter((m) => m.method !== 'GRAPHQL') as HttpMock[];
+  const restMocks = mocks.filter(
+    (m) => !['GRAPHQL', 'WEBSOCKET'].includes(m.method)
+  ) as HttpMock[];
   const graphQLMocks = mocks.filter(
     (m) => m.method === 'GRAPHQL'
   ) as GraphQLMock[];
+
+  const webSocketMocks = mocks.filter(
+    (m) => m.method === 'WEBSOCKET'
+  ) as WebSocketMock[];
 
   restMocks.forEach(handleRestMock);
   graphQLMocks.forEach(handleGraphQLMock);
