@@ -1,6 +1,7 @@
 import fetchMock from 'fetch-mock';
 import XHRMock, { delay as xhrMockDelay, proxy } from 'xhr-mock';
 import { parse } from 'query-string';
+import { Server as MockServer } from 'mock-socket';
 import {
   Scenarios,
   MockConfig,
@@ -58,6 +59,7 @@ export const injectMocks = (
 
   restMocks.forEach(handleRestMock);
   graphQLMocks.forEach(handleGraphQLMock);
+  webSocketMocks.forEach(handleWebsocketMock);
 
   if (config?.allowXHRPassthrough) {
     XHRMock.use(proxy);
@@ -156,7 +158,6 @@ function handleRestMock({
     status: responseCode,
     headers: responseHeaders,
   };
-
   switch (method) {
     case 'GET':
       fetchMock.get(url, () => addDelay(delay).then(() => finalResponse), {
@@ -286,6 +287,11 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
     );
   });
 }
+
+const handleWebsocketMock = ({ url, server }: WebSocketMock) => {
+  console.log('makeing, ', url);
+  server(new MockServer(url));
+};
 
 /**
  * Adds delay (in ms) before resolving a promise.

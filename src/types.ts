@@ -30,7 +30,7 @@ export type GraphQLMock = {
 
 export type WebSocketServerMock = (mockServer: MockServer) => void;
 export type WebSocketMock = {
-  url: RegExp;
+  url: string;
   method: 'WEBSOCKET';
   server: WebSocketServerMock;
 };
