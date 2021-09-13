@@ -327,6 +327,8 @@ describe('data-mocks', () => {
   });
 
   describe('Scenarios', () => {
+    const websocketServerFn = jest.fn();
+    const anotherServerFn = jest.fn();
     const scenarios: Scenarios = {
       default: [
         {
@@ -344,6 +346,22 @@ describe('data-mocks', () => {
           responseHeaders: { token: 'bar' },
         },
         { url: /bar/, method: 'POST', response: {}, responseCode: 200 },
+        {
+          url: /graphql/,
+          method: 'GRAPHQL',
+          operations: [
+            {
+              operationName: 'Query',
+              type: 'query',
+              response: { data: { test: 'data' } },
+            },
+          ],
+        },
+        {
+          url: 'ws://localhost',
+          method: 'WEBSOCKET',
+          server: websocketServerFn,
+        },
       ],
       someScenario: [
         {
@@ -353,6 +371,18 @@ describe('data-mocks', () => {
           responseCode: 401,
         },
         { url: /baz/, method: 'POST', response: {}, responseCode: 200 },
+        {
+          url: /graphql/,
+          method: 'GRAPHQL',
+          operations: [
+            {
+              operationName: 'Query',
+              type: 'query',
+              response: { data: { test: 'different data' } },
+            },
+          ],
+        },
+        { url: 'ws://localhost', method: 'WEBSOCKET', server: anotherServerFn },
       ],
     };
 
@@ -385,6 +415,22 @@ describe('data-mocks', () => {
           responseHeaders: { token: 'bar' },
         },
         { url: /bar/, method: 'POST', response: {}, responseCode: 200 },
+        {
+          url: /graphql/,
+          method: 'GRAPHQL',
+          operations: [
+            {
+              operationName: 'Query',
+              type: 'query',
+              response: { data: { test: 'data' } },
+            },
+          ],
+        },
+        {
+          url: 'ws://localhost',
+          method: 'WEBSOCKET',
+          server: websocketServerFn,
+        },
       ]);
     });
 
@@ -412,6 +458,18 @@ describe('data-mocks', () => {
           responseCode: 200,
         },
         { url: /baz/, method: 'POST', response: {}, responseCode: 200 },
+        {
+          url: /graphql/,
+          method: 'GRAPHQL',
+          operations: [
+            {
+              operationName: 'Query',
+              type: 'query',
+              response: { data: { test: 'different data' } },
+            },
+          ],
+        },
+        { url: 'ws://localhost', method: 'WEBSOCKET', server: anotherServerFn },
       ]);
     });
 
@@ -581,18 +639,6 @@ describe('data-mocks', () => {
     });
   });
 });
-
-const createServer = (url: string) => {
-  const testServerMock = (server: MockSever) => {
-    server.on('connection', (socket) => {
-      socket.on('message', (data) => {
-        socket.send(data.toString());
-      });
-    });
-    return server;
-  };
-  return testServerMock(new MockSever(url));
-};
 
 const awaitSocket = (socket, state) => {
   return new Promise(function (resolve) {

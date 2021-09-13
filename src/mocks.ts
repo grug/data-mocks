@@ -88,11 +88,23 @@ export const reduceAllMocksForScenario = (
   const mocks = defaultMocks.concat(scenarioMocks);
 
   const initialHttpMocks = mocks.filter(
-    ({ method }) => method !== 'GRAPHQL'
+    (m) => !['GRAPHQL', 'WEBSOCKET'].includes(m.method)
   ) as HttpMock[];
   const initialGraphQlMocks = mocks.filter(
     ({ method }) => method === 'GRAPHQL'
   ) as GraphQLMock[];
+
+  const initialWebsocketMocks = mocks.filter(
+    (m) => m.method === 'WEBSOCKET'
+  ) as WebSocketMock[];
+
+  const websocketMocksByUrl = initialWebsocketMocks.reduce<
+    Record<string, WebSocketMock>
+  >((result, mock) => {
+    const { url } = mock;
+    result[url] = mock;
+    return result;
+  }, {});
 
   const httpMocksByUrlAndMethod = initialHttpMocks.reduce<
     Record<string, HttpMock>
@@ -139,7 +151,9 @@ export const reduceAllMocksForScenario = (
     }
   ) as GraphQLMock[];
 
-  return (httpMocks as any).concat(graphQlMocks);
+  const websocketMocks = Object.values(websocketMocksByUrl);
+
+  return [...httpMocks, ...graphQlMocks, ...websocketMocks];
 };
 
 /**
