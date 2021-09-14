@@ -172,6 +172,7 @@ function handleRestMock({
     status: responseCode,
     headers: responseHeaders,
   };
+
   switch (method) {
     case 'GET':
       fetchMock.get(url, () => addDelay(delay).then(() => finalResponse), {
@@ -210,7 +211,8 @@ function handleRestMock({
   }
 }
 
-/**  const graphQLMocks = mocks.filter(ethod for a GraphQL mock.
+/**
+ * Mocks the right HTTP method for a GraphQL mock.
  */
 function handleGraphQLMock({ url, operations }: GraphQLMock) {
   const graphQLErrorResponse = { errors: [] };
