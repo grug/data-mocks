@@ -1,6 +1,6 @@
 {
   "name": "@ovotech/data-mocks",
-  "version": "4.2.0",
+  "version": "4.2.1",
   "main": "dist/mocks.js",
   "types": "dist/types.d.ts",
   "repository": "git@github.com:aidenscott2016/data-mocks.git",
