@@ -1,12 +1,12 @@
 {
-  "name": "data-mocks",
-  "version": "4.1.0",
+  "name": "@ovotech/data-mocks",
+  "version": "4.2.0",
   "main": "dist/mocks.js",
   "types": "dist/types.d.ts",
-  "repository": "git@github.com:grug/data-mocks.git",
+  "repository": "git@github.com:aidenscott2016/data-mocks.git",
   "author": "Dave Cooper <dave@davecooper.dev>",
   "license": "MIT",
-  "homepage": "https://github.com/grug/data-mocks",
+  "homepage": "https://github.com/aidenscott2016/data-mocks",
   "scripts": {
     "clean": "rimraf dist",
     "prepublishOnly": "yarn build",
