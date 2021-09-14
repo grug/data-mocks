@@ -303,7 +303,6 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
 }
 
 const handleWebsocketMock = ({ url, server }: WebSocketMock) => {
-  console.log('makeing, ', url);
   server(new MockServer(url));
 };
 
