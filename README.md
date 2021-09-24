@@ -1,6 +1,7 @@
 # data-mocks
 
 # modified by aiden for websocket support.
+
 # will hopefully be deleted soon when merged in to upstream
 
 [![GitHub license](https://img.shields.io/github/license/ovotech/data-mocks.svg)](https://github.com/grug/data-mocks)
@@ -8,7 +9,7 @@
 
 <img src="https://i.imgur.com/gEG3io2.jpg" height="250">
 
-Library (written in TypeScript) to mock REST and GraphQL requests
+Library (written in TypeScript) to mock REST, GraphQ, and Websocket requests
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
@@ -96,13 +97,13 @@ import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
 
 async function setupMocks() {
-    const { injectMocks, extractScenarioFromLocation } = await import(
-      'data-mocks'
-    );
-    // You could just define your mocks inline if you didn't want to import them.
-    const { getMocks } = await import('./path/to/your/mock/definitions');
+  const { injectMocks, extractScenarioFromLocation } = await import(
+    'data-mocks'
+  );
+  // You could just define your mocks inline if you didn't want to import them.
+  const { getMocks } = await import('./path/to/your/mock/definitions');
 
-    injectMocks(getMocks(), extractScenarioFromLocation(window.location));
+  injectMocks(getMocks(), extractScenarioFromLocation(window.location));
 }
 
 async function main() {
@@ -306,6 +307,38 @@ const Component = () => {
 };
 ```
 
+### Basic Websocket server mock injection
+
+To mock a WebSocket server you should provide a function which takes a single `Server` (provided by `mock-socket`) as a paremeter. On this mock server parameter you can set your callbacks as normal. Please not that due to limitations in the underlying websocket mocking library, the url _must_ be supplied as a string, not a regular expression
+
+```ts
+const wsMock: WebSocketServerMock = s => {
+  return s.on('connection', socket => {
+    socket.on('message', _ => {
+      socket.send('hello world')
+      }
+    });
+  });
+};
+
+const mocks = {
+  default: [
+    {
+      url: 'ws://localhost' //notice this is NOT a regular expression
+      method: 'WEBSOCKET',
+      server: wsMock,
+    }
+  ]
+};
+
+injectMocks(mocks, extractScenarioFromLocation(window.location));
+
+
+const socket = new WebSocket('ws://localhost')
+socket.send('hello')
+
+```
+
 ## Exported types
 
 ### Scenarios
@@ -333,6 +366,14 @@ const Component = () => {
 | url        | RegExp             | ✅       | Regular expression that matches part of the URL.          |
 | method     | string             | ✅       | Must be 'GRAPHQL' to specify that this is a GraphQL mock. |
 | operations | Array\<Operation\> | ✅       | Array of GraphQL operations for this request.             |
+
+### WebSocketMock
+
+| Property | Type     | Required | Description                                                                                                   |
+| -------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------- |
+| url      | string   | ✅       | Regular expression that matches part of the URL.                                                              |
+| method   | string   | ✅       | Must be 'WEBSOCKET' to specify that this is a Websocket mock.                                                 |
+| server   | function | ✅       | a function which takes a server as a parameter. Here you will set up the functionality of the server to mock. |
 
 ### Mock
 
