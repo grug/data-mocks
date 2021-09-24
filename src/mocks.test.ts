@@ -1,7 +1,6 @@
 import axios from 'axios';
 import fetchMock from 'fetch-mock';
 import 'isomorphic-fetch';
-import { Server as MockSever } from 'mock-socket';
 import XHRMock, { proxy } from 'xhr-mock';
 import {
   extractScenarioFromLocation,
@@ -27,7 +26,6 @@ describe('data-mocks', () => {
             method: 'WEBSOCKET',
             server: (s) => {
               s.on('connection', (socket) => {
-                console.log('conneted');
                 onConnect();
                 socket.on('message', (req) => {
                   onMessage();

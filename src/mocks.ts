@@ -45,17 +45,7 @@ export const injectMocks = (
   if (!mocks || mocks.length === 0) {
     throw new Error('Unable to instantiate mocks');
   }
-
-  const restMocks = mocks.filter(
-    (m) => !['GRAPHQL', 'WEBSOCKET'].includes(m.method)
-  ) as HttpMock[];
-  const graphQLMocks = mocks.filter(
-    (m) => m.method === 'GRAPHQL'
-  ) as GraphQLMock[];
-
-  const webSocketMocks = mocks.filter(
-    (m) => m.method === 'WEBSOCKET'
-  ) as WebSocketMock[];
+  const { restMocks, graphQLMocks, webSocketMocks } = getMocksByType(mocks);
 
   restMocks.forEach(handleRestMock);
   graphQLMocks.forEach(handleGraphQLMock);
@@ -87,16 +77,11 @@ export const reduceAllMocksForScenario = (
 
   const mocks = defaultMocks.concat(scenarioMocks);
 
-  const initialHttpMocks = mocks.filter(
-    (m) => !['GRAPHQL', 'WEBSOCKET'].includes(m.method)
-  ) as HttpMock[];
-  const initialGraphQlMocks = mocks.filter(
-    ({ method }) => method === 'GRAPHQL'
-  ) as GraphQLMock[];
-
-  const initialWebsocketMocks = mocks.filter(
-    (m) => m.method === 'WEBSOCKET'
-  ) as WebSocketMock[];
+  const {
+    restMocks: initialHttpMocks,
+    graphQLMocks: initialGraphQlMocks,
+    webSocketMocks: initialWebsocketMocks,
+  } = getMocksByType(mocks);
 
   const websocketMocksByUrl = initialWebsocketMocks.reduce<
     Record<string, WebSocketMock>
@@ -313,3 +298,17 @@ const handleWebsocketMock = ({ url, server }: WebSocketMock) => {
  */
 const addDelay = (delay: number) =>
   new Promise((res) => setTimeout(res, delay));
+
+const getMocksByType = (mocks: Mock[]) => {
+  const restMocks = mocks.filter(
+    (m) => !['GRAPHQL', 'WEBSOCKET'].includes(m.method)
+  ) as HttpMock[];
+  const graphQLMocks = mocks.filter(
+    (m) => m.method === 'GRAPHQL'
+  ) as GraphQLMock[];
+
+  const webSocketMocks = mocks.filter(
+    (m) => m.method === 'WEBSOCKET'
+  ) as WebSocketMock[];
+  return { restMocks, graphQLMocks, webSocketMocks };
+};

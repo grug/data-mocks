@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "fetch-mock": "^9.4.0",
+    "mock-socket": "^9.0.3",
     "query-string": "^5.1.1",
     "xhr-mock": "^2.5.1"
   },
