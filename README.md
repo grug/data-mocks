@@ -9,7 +9,7 @@
 
 <img src="https://i.imgur.com/gEG3io2.jpg" height="250">
 
-Library (written in TypeScript) to mock REST, GraphQ, and Websocket requests
+Library (written in TypeScript) to mock REST, GraphQL, and Websocket requests
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
