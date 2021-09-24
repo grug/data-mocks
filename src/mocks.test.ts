@@ -1,17 +1,61 @@
-import 'isomorphic-fetch';
 import axios from 'axios';
+import fetchMock from 'fetch-mock';
+import 'isomorphic-fetch';
+import XHRMock, { proxy } from 'xhr-mock';
 import {
-  injectMocks,
   extractScenarioFromLocation,
+  injectMocks,
   reduceAllMocksForScenario,
 } from './mocks';
-import { HttpMethod, Scenarios, MockConfig } from './types';
-import XHRMock, { proxy } from 'xhr-mock';
-import fetchMock from 'fetch-mock';
+import { HttpMethod, MockConfig, Scenarios } from './types';
 
 describe('data-mocks', () => {
   beforeEach(() => {
     fetchMock.resetHistory();
+  });
+
+  describe('Websockets', () => {
+    const testURL = 'ws://localhost/foo';
+    it('Spawns a working websocket server', async () => {
+      const onMessage = jest.fn();
+      const onConnect = jest.fn();
+      const scenarios: Scenarios = {
+        default: [
+          {
+            url: testURL,
+            method: 'WEBSOCKET',
+            server: (s) => {
+              s.on('connection', (socket) => {
+                onConnect();
+                socket.on('message', (req) => {
+                  onMessage();
+                  socket.send(req.toString());
+                  s.close();
+                });
+              });
+            },
+          },
+        ],
+      };
+      injectMocks(scenarios, 'default');
+
+      const socket = new WebSocket(testURL);
+      let res;
+      socket.addEventListener('message', (data) => {
+        res = data.data;
+        socket.close();
+      });
+
+      await awaitSocket(socket, WebSocket.OPEN);
+      expect(onConnect).toBeCalled();
+
+      const message = 'hello world';
+      socket.send(message);
+      await awaitSocket(socket, WebSocket.CLOSED);
+      expect(onMessage).toBeCalled();
+
+      expect(res).toEqual(message);
+    });
   });
 
   describe('REST', () => {
@@ -50,7 +94,6 @@ describe('data-mocks', () => {
           const xhrSpy = jest.spyOn(XHRMock, httpMethod.toLowerCase() as any);
 
           injectMocks(scenarios, 'default');
-
           expect(fetchSpy).toHaveBeenCalledTimes(2);
           expect(fetchSpy.mock.calls[0][0]).toEqual(/foo/);
           expect(fetchSpy.mock.calls[1][0]).toEqual(/bar/);
@@ -282,6 +325,8 @@ describe('data-mocks', () => {
   });
 
   describe('Scenarios', () => {
+    const websocketServerFn = jest.fn();
+    const anotherServerFn = jest.fn();
     const scenarios: Scenarios = {
       default: [
         {
@@ -299,6 +344,22 @@ describe('data-mocks', () => {
           responseHeaders: { token: 'bar' },
         },
         { url: /bar/, method: 'POST', response: {}, responseCode: 200 },
+        {
+          url: /graphql/,
+          method: 'GRAPHQL',
+          operations: [
+            {
+              operationName: 'Query',
+              type: 'query',
+              response: { data: { test: 'data' } },
+            },
+          ],
+        },
+        {
+          url: 'ws://localhost',
+          method: 'WEBSOCKET',
+          server: websocketServerFn,
+        },
       ],
       someScenario: [
         {
@@ -308,6 +369,18 @@ describe('data-mocks', () => {
           responseCode: 401,
         },
         { url: /baz/, method: 'POST', response: {}, responseCode: 200 },
+        {
+          url: /graphql/,
+          method: 'GRAPHQL',
+          operations: [
+            {
+              operationName: 'Query',
+              type: 'query',
+              response: { data: { test: 'different data' } },
+            },
+          ],
+        },
+        { url: 'ws://localhost', method: 'WEBSOCKET', server: anotherServerFn },
       ],
     };
 
@@ -340,6 +413,22 @@ describe('data-mocks', () => {
           responseHeaders: { token: 'bar' },
         },
         { url: /bar/, method: 'POST', response: {}, responseCode: 200 },
+        {
+          url: /graphql/,
+          method: 'GRAPHQL',
+          operations: [
+            {
+              operationName: 'Query',
+              type: 'query',
+              response: { data: { test: 'data' } },
+            },
+          ],
+        },
+        {
+          url: 'ws://localhost',
+          method: 'WEBSOCKET',
+          server: websocketServerFn,
+        },
       ]);
     });
 
@@ -367,6 +456,18 @@ describe('data-mocks', () => {
           responseCode: 200,
         },
         { url: /baz/, method: 'POST', response: {}, responseCode: 200 },
+        {
+          url: /graphql/,
+          method: 'GRAPHQL',
+          operations: [
+            {
+              operationName: 'Query',
+              type: 'query',
+              response: { data: { test: 'different data' } },
+            },
+          ],
+        },
+        { url: 'ws://localhost', method: 'WEBSOCKET', server: anotherServerFn },
       ]);
     });
 
@@ -536,3 +637,15 @@ describe('data-mocks', () => {
     });
   });
 });
+
+const awaitSocket = (socket, state) => {
+  return new Promise(function (resolve) {
+    setTimeout(function () {
+      if (socket.readyState === state) {
+        resolve(true);
+      } else {
+        awaitSocket(socket, state).then(resolve);
+      }
+    }, 1000);
+  });
+};

@@ -1,6 +1,7 @@
 import fetchMock from 'fetch-mock';
 import XHRMock, { delay as xhrMockDelay, proxy } from 'xhr-mock';
 import { parse } from 'query-string';
+import { Server as MockServer } from 'mock-socket';
 import {
   Scenarios,
   MockConfig,
@@ -8,6 +9,7 @@ import {
   HttpMock,
   GraphQLMock,
   Operation,
+  WebSocketMock,
 } from './types';
 
 /**
@@ -43,14 +45,11 @@ export const injectMocks = (
   if (!mocks || mocks.length === 0) {
     throw new Error('Unable to instantiate mocks');
   }
-
-  const restMocks = mocks.filter((m) => m.method !== 'GRAPHQL') as HttpMock[];
-  const graphQLMocks = mocks.filter(
-    (m) => m.method === 'GRAPHQL'
-  ) as GraphQLMock[];
+  const { restMocks, graphQLMocks, webSocketMocks } = getMocksByType(mocks);
 
   restMocks.forEach(handleRestMock);
   graphQLMocks.forEach(handleGraphQLMock);
+  webSocketMocks.forEach(handleWebsocketMock);
 
   if (config?.allowXHRPassthrough) {
     XHRMock.use(proxy);
@@ -78,12 +77,19 @@ export const reduceAllMocksForScenario = (
 
   const mocks = defaultMocks.concat(scenarioMocks);
 
-  const initialHttpMocks = mocks.filter(
-    ({ method }) => method !== 'GRAPHQL'
-  ) as HttpMock[];
-  const initialGraphQlMocks = mocks.filter(
-    ({ method }) => method === 'GRAPHQL'
-  ) as GraphQLMock[];
+  const {
+    restMocks: initialHttpMocks,
+    graphQLMocks: initialGraphQlMocks,
+    webSocketMocks: initialWebsocketMocks,
+  } = getMocksByType(mocks);
+
+  const websocketMocksByUrl = initialWebsocketMocks.reduce<
+    Record<string, WebSocketMock>
+  >((result, mock) => {
+    const { url } = mock;
+    result[url] = mock;
+    return result;
+  }, {});
 
   const httpMocksByUrlAndMethod = initialHttpMocks.reduce<
     Record<string, HttpMock>
@@ -130,7 +136,9 @@ export const reduceAllMocksForScenario = (
     }
   ) as GraphQLMock[];
 
-  return (httpMocks as any).concat(graphQlMocks);
+  const websocketMocks = Object.values(websocketMocksByUrl);
+
+  return [...httpMocks, ...graphQlMocks, ...websocketMocks];
 };
 
 /**
@@ -281,8 +289,26 @@ function handleGraphQLMock({ url, operations }: GraphQLMock) {
   });
 }
 
+const handleWebsocketMock = ({ url, server }: WebSocketMock) => {
+  server(new MockServer(url));
+};
+
 /**
  * Adds delay (in ms) before resolving a promise.
  */
 const addDelay = (delay: number) =>
   new Promise((res) => setTimeout(res, delay));
+
+const getMocksByType = (mocks: Mock[]) => {
+  const restMocks = mocks.filter(
+    (m) => !['GRAPHQL', 'WEBSOCKET'].includes(m.method)
+  ) as HttpMock[];
+  const graphQLMocks = mocks.filter(
+    (m) => m.method === 'GRAPHQL'
+  ) as GraphQLMock[];
+
+  const webSocketMocks = mocks.filter(
+    (m) => m.method === 'WEBSOCKET'
+  ) as WebSocketMock[];
+  return { restMocks, graphQLMocks, webSocketMocks };
+};
